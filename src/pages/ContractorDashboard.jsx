@@ -1,75 +1,105 @@
-import React, { useEffect, useState } from 'react';
-import { supabase } from '../utils/supabaseClient';
+import { useEffect, useState } from "react";
+import { supabase } from "../lib/supabaseClient";
+import StatCard from "../components/StatCard";
+import LeadsTable from "../components/LeadsTable";
 
-export default function ContractorDashboard(){
-  const [user, setUser] = useState(null);
-  const [leads, setLeads] = useState([]);
+export default function Dashboard() {
+  const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  useEffect(()=>{
-    const s = supabase.auth.onAuthStateChange((event, session) => {
-      setUser(session?.user ?? null);
-      if(session?.user) fetchLeads(session.user.email);
-    });
+  // NOTE: we assume a "leads" table with columns:
+  // id, customer_name, customer_phone, service_type, suburb,
+  // status ('Open','In Progress','Completed','Cancelled'),
+  // assigned_to (contractor email), created_at.
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true);
+      try {
+        const {
+          data: { user }
+        } = await supabase.auth.getUser();
 
-    // check current session
-    supabase.auth.getSession().then(({data}) => {
-      setUser(data.session?.user ?? null);
-      if(data.session?.user) fetchLeads(data.session.user.email);
-    });
+        const contractorEmail = user?.email || null;
 
-    return () => s?.subscription?.unsubscribe?.();
+        let query = supabase.from("leads").select("*").order("created_at", {
+          ascending: false
+        });
+
+        if (contractorEmail) {
+          query = query.eq("assigned_to", contractorEmail);
+        }
+
+        const { data, error } = await query;
+        if (error) throw error;
+        setJobs(data || []);
+      } catch (err) {
+        console.error(err);
+        setJobs([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    load();
   }, []);
 
-  async function fetchLeads(email){
-    const { data, error } = await supabase.from('leads').select('*').eq('assigned_to', email).order('created_at', { ascending: false });
-    if(error) return console.error(error);
-    setLeads(data || []);
-  }
-
-  async function updateStatus(leadId, status){
-    const { data, error } = await supabase.from('leads').update({ status }).eq('id', leadId).select().single();
-    if(error) return console.error(error);
-    setLeads(prev => prev.map(l => l.id === leadId ? {...l, status} : l));
-  }
-
-  function signOut(){
-    supabase.auth.signOut();
-    setUser(null);
-    setLeads([]);
-  }
+  const total = jobs.length;
+  const open = jobs.filter(j => j.status === "Open").length;
+  const inProgress = jobs.filter(j => j.status === "In Progress").length;
+  const completed = jobs.filter(j => j.status === "Completed").length;
+  const cancelled = jobs.filter(j => j.status === "Cancelled").length;
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">My Leads</h1>
+    <div className="space-y-6">
+      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
         <div>
-          {user ? (
-            <div className="flex items-center gap-3">
-              <div className="text-sm text-gray-600">{user.email}</div>
-              <button onClick={signOut} className="px-3 py-1 border rounded">Sign out</button>
-            </div>
-          ) : (
-            <div className="text-sm text-gray-500">Not signed in</div>
-          )}
+          <h1 className="text-xl md:text-2xl font-semibold text-slate-50">
+            Welcome back, Contractor
+          </h1>
+          <p className="text-sm text-slate-400">
+            Track all ServicePoint SA jobs assigned to you in real time.
+          </p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4">
-        {leads.map(l => (
-          <div key={l.id} className="card flex justify-between items-center">
-            <div>
-              <div className="font-semibold">{l.name} <span className="text-sm text-gray-500">({l.status})</span></div>
-              <div className="text-sm text-gray-600">{l.description}</div>
-              <div className="text-xs text-gray-400">{new Date(l.created_at).toLocaleString()}</div>
-            </div>
-            <div className="flex flex-col items-end gap-2">
-              <button onClick={()=>updateStatus(l.id, 'in progress')} className="px-3 py-1 border rounded">In Progress</button>
-              <button onClick={()=>updateStatus(l.id, 'completed')} className="px-3 py-1 bg-green-600 text-white rounded">Complete</button>
-            </div>
-          </div>
-        ))}
-        {leads.length === 0 && <div className="text-sm text-gray-500">No leads assigned yet.</div>}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard
+          label="Open jobs"
+          value={open}
+          sub="Waiting to be accepted or scheduled."
+          accent="Today’s focus"
+        />
+        <StatCard
+          label="In progress"
+          value={inProgress}
+          sub="Currently on-site or being worked on."
+        />
+        <StatCard
+          label="Completed"
+          value={completed}
+          sub="Marked as finished by you."
+        />
+        <StatCard
+          label="Cancelled"
+          value={cancelled}
+          sub="Declined or cancelled by client."
+        />
       </div>
+
+      <section className="mt-4">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-sm font-semibold text-slate-200 uppercase tracking-wide">
+            Recent Jobs
+          </h2>
+          <p className="text-xs text-slate-400">
+            Total assigned:{" "}
+            <span className="font-semibold text-slate-100">{total}</span>
+          </p>
+        </div>
+        <div className="rounded-xl border border-slate-800 bg-slate-900/60">
+          <LeadsTable leads={jobs} loading={loading} />
+        </div>
+      </section>
     </div>
   );
 }
