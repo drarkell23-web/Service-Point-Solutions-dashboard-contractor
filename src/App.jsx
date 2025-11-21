@@ -1,10 +1,12 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import DashboardLayout from "./layouts/DashboardLayout";
 
-import Dashboard from "./pages/Dashboard";
-import Jobs from "./pages/Jobs";
-import Profile from "./pages/Profile";
+// Corrected imports (matching your real file names)
+import ContractorDashboard from "./pages/ContractorDashboard";
+import Jobs from "./pages/jobs";
+import Profile from "./pages/profile";
 import Auth from "./pages/Auth";
+import Home from "./pages/Home";
 
 function App() {
   return (
@@ -12,12 +14,22 @@ function App() {
       {/* Login */}
       <Route path="/login" element={<Auth />} />
 
-      {/* Dashboard Home */}
+      {/* Home */}
       <Route
         path="/"
         element={
           <DashboardLayout>
-            <Dashboard />
+            <Home />
+          </DashboardLayout>
+        }
+      />
+
+      {/* Dashboard */}
+      <Route
+        path="/dashboard"
+        element={
+          <DashboardLayout>
+            <ContractorDashboard />
           </DashboardLayout>
         }
       />
@@ -42,7 +54,7 @@ function App() {
         }
       />
 
-      {/* Redirect unknown routes */}
+      {/* fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
