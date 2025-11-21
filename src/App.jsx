@@ -1,23 +1,25 @@
-import React from 'react';
-import { Routes, Route } from 'react-router-dom';
-import Home from './pages/Home';
-import Dashboard from './pages/ContractorDashboard';
-import Auth from './pages/Auth';
-import Header from './components/Header';
-import Footer from './components/Footer';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+import ChatbotWidget from "./components/ChatbotWidget";
 
-export default function App(){
+import Home from "./pages/Home";
+import Services from "./pages/Services";
+
+function App() {
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      <main className="flex-1">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-        </Routes>
-      </main>
+    <Router>
+      <Navbar />
+
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/services" element={<Services />} />
+      </Routes>
+
+      <ChatbotWidget />
       <Footer />
-    </div>
+    </Router>
   );
 }
+
+export default App;
