@@ -1,22 +1,17 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-
-// Layout
 import DashboardLayout from "./layouts/DashboardLayout";
-
-// Pages
 import Dashboard from "./pages/Dashboard";
 import Jobs from "./pages/Jobs";
 import Profile from "./pages/Profile";
 import Auth from "./pages/Auth";
 
-export default function App() {
+function App() {
   return (
     <Routes>
-
-      {/* Public login page */}
+      {/* Login Page */}
       <Route path="/login" element={<Auth />} />
 
-      {/* Dashboard Home */}
+      {/* Dashboard */}
       <Route
         path="/"
         element={
@@ -26,7 +21,7 @@ export default function App() {
         }
       />
 
-      {/* Jobs page */}
+      {/* Jobs Page */}
       <Route
         path="/jobs"
         element={
@@ -36,7 +31,7 @@ export default function App() {
         }
       />
 
-      {/* Profile page */}
+      {/* Profile Page */}
       <Route
         path="/profile"
         element={
@@ -46,8 +41,10 @@ export default function App() {
         }
       />
 
-      {/* Catch-all redirect */}
+      {/* Redirect everything unknown */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }
+
+export default App;
