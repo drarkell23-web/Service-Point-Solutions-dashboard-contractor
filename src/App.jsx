@@ -21,7 +21,7 @@ function App() {
         }
       />
 
-      {/* Jobs Page */}
+      {/* Jobs */}
       <Route
         path="/jobs"
         element={
@@ -31,7 +31,7 @@ function App() {
         }
       />
 
-      {/* Profile Page */}
+      {/* Profile */}
       <Route
         path="/profile"
         element={
@@ -41,7 +41,7 @@ function App() {
         }
       />
 
-      {/* Redirect everything unknown */}
+      {/* Redirect everything else */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
