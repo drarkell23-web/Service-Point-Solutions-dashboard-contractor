@@ -1,21 +1,21 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 
 // layout
-import DashboardLayout from "./layouts/DashboardLayout";
+import DashboardLayout from "./layouts/DashboardLayout.jsx";
 
-// pages
-import Auth from "./pages/Auth";
-import ContractorDashboard from "./pages/ContractorDashboard";
-import Jobs from "./pages/jobs";        // ⬅ match file name: jobs.jsx
-import Profile from "./pages/profile";  // ⬅ match file name: profile.jsx
+// pages (all lowercase because your filenames are lowercase)
+import Auth from "./pages/Auth.jsx";
+import ContractorDashboard from "./pages/ContractorDashboard.jsx";
+import Jobs from "./pages/jobs.jsx";
+import Profile from "./pages/profile.jsx";
 
 function App() {
   return (
     <Routes>
-      {/* Login page (magic link via Supabase) */}
+      {/* Login Page */}
       <Route path="/login" element={<Auth />} />
 
-      {/* Main dashboard */}
+      {/* Dashboard Home */}
       <Route
         path="/"
         element={
@@ -25,7 +25,7 @@ function App() {
         }
       />
 
-      {/* Jobs list */}
+      {/* Jobs Page */}
       <Route
         path="/jobs"
         element={
@@ -35,7 +35,7 @@ function App() {
         }
       />
 
-      {/* Contractor profile/settings */}
+      {/* Profile Page */}
       <Route
         path="/profile"
         element={
@@ -45,7 +45,7 @@ function App() {
         }
       />
 
-      {/* Anything else -> dashboard */}
+      {/* Redirect all unknown routes */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
