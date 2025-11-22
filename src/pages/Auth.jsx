@@ -23,7 +23,7 @@ export default function Auth() {
 
         <input
           type="email"
-          placeholder="Email"
+          placeholder="Enter your email"
           onChange={(e) => setEmail(e.target.value)}
           className="w-full p-2 border rounded mb-4"
         />
