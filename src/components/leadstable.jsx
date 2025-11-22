@@ -1,67 +1,44 @@
-import StatusBadge from "./StatusBadge";
+function StatusPill({ status }) {
+  const base =
+    "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium";
+  const map = {
+    Open: "bg-blue-50 text-blue-700",
+    "In Progress": "bg-amber-50 text-amber-700",
+    Completed: "bg-emerald-50 text-emerald-700",
+    Cancelled: "bg-red-50 text-red-700",
+  };
 
-export default function LeadsTable({ leads, loading }) {
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-40 text-slate-400 text-sm">
-        Loading jobs…
-      </div>
-    );
-  }
+  return <span className={`${base} ${map[status] || ""}`}>{status}</span>;
+}
 
-  if (!leads?.length) {
-    return (
-      <div className="flex items-center justify-center h-40 text-slate-500 text-sm">
-        No jobs assigned yet. New jobs will appear here.
-      </div>
-    );
-  }
-
+export default function LeadsTable({ leads }) {
   return (
     <div className="overflow-x-auto">
-      <table className="min-w-full text-left text-xs lg:text-sm">
-        <thead className="bg-slate-900/80 border-b border-slate-800 text-slate-400">
+      <table className="min-w-full text-sm">
+        <thead className="bg-gray-50 text-xs uppercase text-gray-500">
           <tr>
-            <th className="py-2.5 px-3 font-medium">Job ID</th>
-            <th className="py-2.5 px-3 font-medium">Client</th>
-            <th className="py-2.5 px-3 font-medium">Service</th>
-            <th className="py-2.5 px-3 font-medium hidden md:table-cell">
-              Suburb
-            </th>
-            <th className="py-2.5 px-3 font-medium">Status</th>
-            <th className="py-2.5 px-3 font-medium hidden lg:table-cell">
-              Created
-            </th>
+            <th className="px-4 py-3 text-left">Lead ID</th>
+            <th className="px-4 py-3 text-left">Customer</th>
+            <th className="px-4 py-3 text-left">Service</th>
+            <th className="px-4 py-3 text-left">Status</th>
+            <th className="px-4 py-3 text-left">Budget</th>
+            <th className="px-4 py-3 text-left">Created</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-800">
-          {leads.map(job => (
-            <tr
-              key={job.id}
-              className="hover:bg-slate-900/80 transition-colors"
-            >
-              <td className="py-2.5 px-3 text-slate-200 text-xs lg:text-sm">
-                #{job.id}
+        <tbody className="divide-y divide-gray-100">
+          {leads.map((lead) => (
+            <tr key={lead.id} className="hover:bg-gray-50">
+              <td className="px-4 py-3 font-mono text-xs text-gray-600">
+                {lead.id}
               </td>
-              <td className="py-2.5 px-3 text-slate-100">
-                {job.customer_name || "Client"}
-                <p className="text-[11px] text-slate-400">
-                  {job.customer_phone}
-                </p>
+              <td className="px-4 py-3 text-gray-900">{lead.customer}</td>
+              <td className="px-4 py-3 text-gray-600">{lead.service}</td>
+              <td className="px-4 py-3">
+                <StatusPill status={lead.status} />
               </td>
-              <td className="py-2.5 px-3 text-slate-200">
-                {job.service_type}
-              </td>
-              <td className="py-2.5 px-3 text-slate-300 hidden md:table-cell">
-                {job.suburb || job.city || "-"}
-              </td>
-              <td className="py-2.5 px-3">
-                <StatusBadge status={job.status} />
-              </td>
-              <td className="py-2.5 px-3 text-slate-400 hidden lg:table-cell">
-                {job.created_at
-                  ? new Date(job.created_at).toLocaleDateString()
-                  : "-"}
+              <td className="px-4 py-3 text-gray-900">{lead.budget}</td>
+              <td className="px-4 py-3 text-gray-500 text-xs">
+                {lead.created_at}
               </td>
             </tr>
           ))}
