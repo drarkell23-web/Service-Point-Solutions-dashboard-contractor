@@ -1,95 +1,235 @@
-import StatCard from "../components/statcard";       // ⬅ statcard.jsx
-import LeadsTable from "../components/leadstable";   // ⬅ leadstable.jsx
+import StatCard from "../components/StatCard";
 
-export default function ContractorDashboard() {
-  // You can later load these from Supabase
-  const stats = [
-    { label: "Open Jobs", value: 7, trend: "+2 this week" },
-    { label: "In Progress", value: 4, trend: "On track" },
-    { label: "Completed", value: 12, trend: "+5 this month" },
-    { label: "Cancelled", value: 1, trend: "Low" },
-  ];
+function BarChart({ light }) {
+  const bars = [60, 80, 55, 70, 90, 65, 75, 50, 85, 40, 60, 72];
 
-  const leads = [
+  return (
+    <div className="flex h-40 items-end justify-between gap-1">
+      {bars.map((h, i) => (
+        <div
+          key={i}
+          className={`flex-1 rounded-full ${
+            light
+              ? "bg-violet-200"
+              : "bg-gradient-to-t from-violet-600 to-violet-400"
+          }`}
+          style={{ height: `${h}%` }}
+        />
+      ))}
+    </div>
+  );
+}
+
+function MiniTable() {
+  const rows = [
     {
-      id: "SP-1023",
-      customer: "John Smith",
-      service: "Plumbing – Burst Pipe",
-      status: "In Progress",
-      created_at: "2025-11-18",
-      budget: "R2 300",
+      name: "Kabelo M.",
+      city: "Cape Town",
+      date: "22.08.2022",
+      status: "Delivered",
+      price: "R 5 920",
     },
     {
-      id: "SP-1022",
-      customer: "Mary Jacobs",
-      service: "Electrical – DB Inspection",
-      status: "Open",
-      created_at: "2025-11-18",
-      budget: "R1 200",
+      name: "Noluthando P.",
+      city: "Johannesburg",
+      date: "24.08.2022",
+      status: "In progress",
+      price: "R 8 410",
     },
     {
-      id: "SP-1019",
-      customer: "K. Naidoo",
-      service: "Handyman – General Repairs",
-      status: "Completed",
-      created_at: "2025-11-17",
-      budget: "R850",
+      name: "Thabo L.",
+      city: "Durban",
+      date: "26.08.2022",
+      status: "Pending",
+      price: "R 3 100",
     },
     {
-      id: "SP-1015",
-      customer: "D. Williams",
-      service: "Appliance – Washing Machine",
-      status: "In Progress",
-      created_at: "2025-11-16",
-      budget: "R1 050",
+      name: "Mieke S.",
+      city: "Pretoria",
+      date: "27.08.2022",
+      status: "Delivered",
+      price: "R 10 230",
     },
   ];
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">
-            ServicePoint SA – Contractor Dashboard
-          </h1>
-          <p className="text-sm text-gray-500">
-            Track your leads, jobs and performance in one place.
-          </p>
+    <div className="mt-4 overflow-hidden rounded-2xl border border-slate-100 bg-white text-xs dark:border-slate-800 dark:bg-slate-900">
+      <div className="grid grid-cols-[1.5fr_1fr_1.1fr_1fr_1fr] bg-slate-50 px-4 py-2 font-medium text-slate-500 dark:bg-slate-800 dark:text-slate-300">
+        <span>Customer</span>
+        <span>City</span>
+        <span>Date</span>
+        <span>Status</span>
+        <span className="text-right">Price</span>
+      </div>
+      {rows.map((row, idx) => (
+        <div
+          key={row.name}
+          className={`grid grid-cols-[1.5fr_1fr_1.1fr_1fr_1fr] px-4 py-2 text-[11px] ${
+            idx % 2 === 0
+              ? "bg-white dark:bg-slate-900"
+              : "bg-slate-50 dark:bg-slate-950"
+          }`}
+        >
+          <span className="font-medium text-slate-800 dark:text-slate-50">
+            {row.name}
+          </span>
+          <span>{row.city}</span>
+          <span>{row.date}</span>
+          <span
+            className={`rounded-full px-2 py-[2px] text-center text-[10px] font-semibold ${
+              row.status === "Delivered"
+                ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300"
+                : row.status === "In progress"
+                ? "bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300"
+                : "bg-slate-100 text-slate-600 dark:bg-slate-700/60 dark:text-slate-200"
+            }`}
+          >
+            {row.status}
+          </span>
+          <span className="text-right font-medium text-slate-900 dark:text-slate-50">
+            {row.price}
+          </span>
         </div>
+      ))}
+    </div>
+  );
+}
 
-        <button className="px-4 py-2 rounded-md bg-blue-600 text-white text-sm font-medium hover:bg-blue-700">
-          Go Online
-        </button>
+export default function ContractorDashboard() {
+  return (
+    <div className="space-y-6">
+      {/* TOP GRID – quick stats */}
+      <div className="grid gap-4 md:grid-cols-4">
+        <StatCard
+          title="Orders"
+          value="201"
+          label="last 30 days"
+          trend="+8.2% vs previous"
+          trendColor="text-emerald-500"
+        />
+        <StatCard
+          title="Approved"
+          value="36"
+          label="awaiting invoicing"
+          trend="+3.4% vs previous"
+          trendColor="text-emerald-500"
+        />
+        <StatCard
+          title="Active contractors"
+          value="17"
+          label="on duty"
+          trend="4 new this week"
+          trendColor="text-sky-500"
+        />
+        <StatCard
+          title="Revenue"
+          value="R150 256"
+          label="month to date"
+          trend="+11.3% vs target"
+          trendColor="text-emerald-500"
+        />
       </div>
 
-      {/* Stat cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-        {stats.map((stat) => (
-          <StatCard
-            key={stat.label}
-            label={stat.label}
-            value={stat.value}
-            trend={stat.trend}
-          />
-        ))}
-      </div>
-
-      {/* Leads table */}
-      <div className="bg-white shadow-sm rounded-xl border border-gray-100">
-        <div className="p-4 border-b border-gray-100 flex items-center justify-between">
-          <div>
-            <h2 className="text-lg font-semibold text-gray-900">
-              Latest Leads
-            </h2>
-            <p className="text-xs text-gray-500">
-              These are the most recent leads assigned to you.
-            </p>
+      {/* MIDDLE GRID – main charts */}
+      <div className="grid gap-4 lg:grid-cols-[2fr_1.4fr]">
+        {/* Sales / activity chart */}
+        <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-100 dark:bg-slate-900 dark:ring-slate-800">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-sm font-semibold text-slate-900 dark:text-white">
+                Service dynamics
+              </h2>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                Completed jobs by month · 2024
+              </p>
+            </div>
+            <div className="flex gap-2 text-[11px]">
+              <span className="flex items-center gap-1 text-slate-500 dark:text-slate-300">
+                <span className="h-2 w-2 rounded-full bg-violet-500" />
+                Plumbing
+              </span>
+              <span className="flex items-center gap-1 text-slate-500 dark:text-slate-300">
+                <span className="h-2 w-2 rounded-full bg-emerald-400" />
+                Electrical
+              </span>
+            </div>
           </div>
-          <button className="text-sm text-blue-600 hover:text-blue-700">
-            View all
-          </button>
+          <div className="mt-4 rounded-2xl bg-slate-50 p-3 dark:bg-slate-950">
+            <BarChart light={false} />
+          </div>
         </div>
-        <LeadsTable leads={leads} />
+
+        {/* donut-style cards */}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
+          <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-100 dark:bg-slate-900 dark:ring-slate-800">
+            <h2 className="text-sm font-semibold text-slate-900 dark:text-white">
+              Paid invoices
+            </h2>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+              Current financial year
+            </p>
+            <div className="mt-4 flex items-center justify-between">
+              <div>
+                <div className="text-2xl font-semibold text-slate-900 dark:text-white">
+                  R302 563
+                </div>
+                <div className="mt-1 text-[11px] text-emerald-500">
+                  +14.5% vs last year
+                </div>
+              </div>
+              <div className="relative h-20 w-20">
+                <div className="absolute inset-0 rounded-full border-[6px] border-slate-200 dark:border-slate-700" />
+                <div className="absolute inset-0 rounded-full border-[6px] border-transparent border-t-emerald-400 border-r-emerald-400 rotate-45" />
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-100 dark:bg-slate-900 dark:ring-slate-800">
+            <h2 className="text-sm font-semibold text-slate-900 dark:text-white">
+              Subscription income
+            </h2>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+              Partner contractors
+            </p>
+            <div className="mt-4 flex items-center justify-between">
+              <div>
+                <div className="text-2xl font-semibold text-slate-900 dark:text-white">
+                  R150 256
+                </div>
+                <div className="mt-1 text-[11px] text-sky-500">
+                  42 active subscriptions
+                </div>
+              </div>
+              <div className="relative h-20 w-20">
+                <div className="absolute inset-0 rounded-full border-[6px] border-slate-200 dark:border-slate-700" />
+                <div className="absolute inset-0 rounded-full border-[6px] border-transparent border-t-sky-400 border-r-sky-400 -rotate-20" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* BOTTOM GRID – activity & orders table */}
+      <div className="grid gap-4 lg:grid-cols-[1.4fr_2fr]">
+        <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-100 dark:bg-slate-900 dark:ring-slate-800">
+          <h2 className="text-sm font-semibold text-slate-900 dark:text-white">
+            Overall user activity
+          </h2>
+          <p className="text-[11px] text-slate-500 dark:text-slate-400">
+            Platform logins and job updates
+          </p>
+          <div className="mt-4 h-40 rounded-2xl bg-gradient-to-t from-violet-200 via-sky-200 to-emerald-200 dark:from-violet-500/40 dark:via-sky-500/40 dark:to-emerald-400/40" />
+        </div>
+
+        <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-100 dark:bg-slate-900 dark:ring-slate-800">
+          <h2 className="text-sm font-semibold text-slate-900 dark:text-white">
+            Customer orders
+          </h2>
+          <p className="text-[11px] text-slate-500 dark:text-slate-400">
+            Latest maintenance jobs on Service Point SA
+          </p>
+          <MiniTable />
+        </div>
       </div>
     </div>
   );
