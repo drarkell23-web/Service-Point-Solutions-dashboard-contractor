@@ -1,4 +1,4 @@
-import StatCard from "../components/StatCard";
+import StatCard from "../components/statcard";
 
 function BarChart({ light }) {
   const bars = [60, 80, 55, 70, 90, 65, 75, 50, 85, 40, 60, 72];
