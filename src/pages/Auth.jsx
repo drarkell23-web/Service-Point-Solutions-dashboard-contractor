@@ -6,10 +6,14 @@ export default function Auth() {
 
   async function login() {
     const { error } = await supabase.auth.signInWithOtp({ email });
-    if (!error) {
-      localStorage.setItem("contractor_email", email);
-      window.location.href = "/";
+
+    if (error) {
+      alert(error.message);
+      return;
     }
+
+    localStorage.setItem("contractor_email", email);
+    window.location.href = "/";
   }
 
   return (
