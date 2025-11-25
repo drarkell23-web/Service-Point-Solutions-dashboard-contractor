@@ -1,215 +1,224 @@
-// Simple fake data so the dashboard looks alive.
-// Later you can replace this with real API / Supabase data.
-
-const LEADS = [
-  {
-    received: "Today · 09:14",
-    client: "Thandi N.",
-    contact: "Hidden by ServicePoint",
-    area: "Durban North",
-    service: "Burst geyser & ceiling damage",
-    budget: "R4 000 – R8 000",
-    status: "new",
+// ======== DEMO DATA (you can later replace with real API) =========
+const demoMetrics = {
+  newLeadsMonth: 8,
+  jobsBookedMonth: 5,
+  conversionRate: 42,
+  pipeline: {
+    New: 3,
+    Quoted: 4,
+    Scheduled: 2,
+    Progress: 1,
+    Done: 7
   },
-  {
-    received: "Today · 08:32",
-    client: "Michael P.",
-    contact: "Hidden by ServicePoint",
-    area: "Pinetown",
-    service: "New DB board + COC",
-    budget: "R6 000 – R12 000",
-    status: "open",
+  today: {
+    newLeads: 2,
+    openJobs: 5,
+    unreadMessages: 3
   },
-  {
-    received: "Yesterday · 16:48",
-    client: "Karin L.",
-    contact: "Hidden by ServicePoint",
-    area: "Umhlanga",
-    service: "Bathroom renovation – plumbing only",
-    budget: "R25 000 – R40 000",
-    status: "open",
-  },
-  {
-    received: "2 days ago · 11:07",
-    client: "Sibusiso G.",
-    contact: "Hidden by ServicePoint",
-    area: "Durban CBD",
-    service: "Leak detection – townhouse block",
-    budget: "To quote",
-    status: "done",
-  },
-];
-
-const ADMIN_MESSAGES = [
-  {
-    title: "Lead quality reminder",
-    ref: "SP-LEADS-2024-11-01",
-    date: "Today · 08:05",
-    body: "Please acknowledge new leads within 30 minutes during office hours. If you cannot take a job, decline it so we can re-route.",
-  },
-  {
-    title: "Job photos & proof",
-    ref: "SP-QA-2024-10-27",
-    date: "Yesterday · 15:32",
-    body: "For insurance and comeback protection, upload before/after photos to our shared folder when jobs are completed.",
-  },
-  {
-    title: "Rating improvements",
-    ref: "SP-RATE-2024-10-20",
-    date: "Last week",
-    body: "Your average rating is 4.7★. Keep greeting clients on site, explaining pricing upfront and confirming work done before leaving.",
-  },
-];
-
-// ---- Helpers ----
-function statusTag(status) {
-  const span = document.createElement("span");
-  span.classList.add("sp-status-tag");
-
-  const dot = document.createElement("span");
-  dot.classList.add("sp-status-dot-mini");
-
-  if (status === "new") {
-    span.classList.add("sp-status-tag--new");
-  } else if (status === "open") {
-    span.classList.add("sp-status-tag--open");
-  } else {
-    span.classList.add("sp-status-tag--done");
+  finance: {
+    invoiced: 48500,
+    paid: 37200,
+    average: 3450
   }
+};
 
-  span.appendChild(dot);
-  span.appendChild(document.createTextNode(status === "done" ? "Completed" : status === "open" ? "In progress" : "New"));
-  return span;
+const demoLeads = [
+  {
+    date: "2025-11-24",
+    client: "Nomsa M.",
+    service: "Geyser replacement",
+    region: "Durban North",
+    status: "New",
+    value: "R4 500"
+  },
+  {
+    date: "2025-11-23",
+    client: "Thabo L.",
+    service: "Solar + inverter install",
+    region: "Randburg, JHB",
+    status: "Quoted",
+    value: "R85 000"
+  },
+  {
+    date: "2025-11-22",
+    client: "Ayesha K.",
+    service: "Interior repaint – 3 rooms",
+    region: "Cape Town CBD",
+    status: "Scheduled",
+    value: "R12 800"
+  }
+];
+
+const demoMessages = [
+  {
+    date: "2025-11-24",
+    title: "New SLA: respond within 2 hours",
+    body: "Please confirm new leads within 2 business hours to keep your account in good standing."
+  },
+  {
+    date: "2025-11-22",
+    title: "Client rating 5★ – great work!",
+    body: "Client for Job #1032 mentioned your team was on time and left the site spotless."
+  },
+  {
+    date: "2025-11-20",
+    title: "Docs reminder",
+    body: "COC and insurance letter expire next month. Reply with updated copies so we can keep you live on the network."
+  }
+];
+
+// ======== POPULATE UI =========
+function formatCurrency(amount) {
+  return "R" + amount.toLocaleString("en-ZA");
 }
 
-// ---- Populate leads tables ----
-function renderLeadsTables() {
-  const shortBody = document.getElementById("leadsTableBody");
-  const fullBody = document.getElementById("leadsTableBodyFull");
-  if (!shortBody || !fullBody) return;
+function initMetrics() {
+  document.getElementById("metric-new-leads").textContent =
+    demoMetrics.newLeadsMonth;
+  document.getElementById("metric-jobs-booked").textContent =
+    demoMetrics.jobsBookedMonth;
+  document.getElementById(
+    "metric-conversion"
+  ).textContent = `${demoMetrics.conversionRate}%`;
 
-  shortBody.innerHTML = "";
-  fullBody.innerHTML = "";
+  document.getElementById("pipe-new").textContent = demoMetrics.pipeline.New;
+  document.getElementById("pipe-quoted").textContent =
+    demoMetrics.pipeline.Quoted;
+  document.getElementById("pipe-scheduled").textContent =
+    demoMetrics.pipeline.Scheduled;
+  document.getElementById("pipe-progress").textContent =
+    demoMetrics.pipeline.Progress;
+  document.getElementById("pipe-done").textContent = demoMetrics.pipeline.Done;
 
-  LEADS.forEach((lead) => {
-    // overview table
-    const trShort = document.createElement("tr");
-    trShort.innerHTML = `
-      <td>${lead.received}</td>
+  document.getElementById(
+    "today-new"
+  ).textContent = `${demoMetrics.today.newLeads} new leads today`;
+  document.getElementById(
+    "today-open"
+  ).textContent = `${demoMetrics.today.openJobs} open jobs`;
+  document.getElementById(
+    "today-messages"
+  ).textContent = `${demoMetrics.today.unreadMessages} unread admin messages`;
+
+  document.getElementById("fin-invoiced").textContent = formatCurrency(
+    demoMetrics.finance.invoiced
+  );
+  document.getElementById("fin-paid").textContent = formatCurrency(
+    demoMetrics.finance.paid
+  );
+  document.getElementById("fin-average").textContent = formatCurrency(
+    demoMetrics.finance.average
+  );
+}
+
+function initLeadsTable() {
+  const tbody = document.querySelector("#leadsTable tbody");
+  tbody.innerHTML = "";
+
+  demoLeads.forEach((lead) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${lead.date}</td>
       <td>${lead.client}</td>
-      <td>${lead.area}</td>
       <td>${lead.service}</td>
-      <td>${lead.budget}</td>
-      <td></td>
+      <td>${lead.region}</td>
+      <td>${lead.status}</td>
+      <td>${lead.value}</td>
     `;
-    const statusCellShort = trShort.lastElementChild;
-    statusCellShort.appendChild(statusTag(lead.status));
-    shortBody.appendChild(trShort);
-
-    // full table
-    const trFull = document.createElement("tr");
-    trFull.innerHTML = `
-      <td>${lead.received}</td>
-      <td>${lead.client}</td>
-      <td>${lead.contact}</td>
-      <td>${lead.area}</td>
-      <td>${lead.service}</td>
-      <td>${lead.budget}</td>
-      <td></td>
-    `;
-    const statusCellFull = trFull.lastElementChild;
-    statusCellFull.appendChild(statusTag(lead.status));
-    fullBody.appendChild(trFull);
+    tbody.appendChild(tr);
   });
 }
 
-// ---- Populate messages ----
-function renderMessages() {
-  const list = document.getElementById("messagesList");
-  const listFull = document.getElementById("messagesListFull");
-  if (!list || !listFull) return;
-
+function initMessages() {
+  const list = document.getElementById("adminMessages");
   list.innerHTML = "";
-  listFull.innerHTML = "";
 
-  ADMIN_MESSAGES.forEach((msg) => {
-    const el = document.createElement("article");
-    el.className = "sp-message";
-    el.innerHTML = `
-      <div class="sp-message-top">
-        <div class="sp-message-title">${msg.title}</div>
-        <div class="sp-message-meta">${msg.date}</div>
-      </div>
-      <div class="sp-message-meta">Ref: ${msg.ref}</div>
-      <div class="sp-message-body">${msg.body}</div>
+  demoMessages.forEach((m) => {
+    const li = document.createElement("li");
+    li.innerHTML = `
+      <div class="sp-timeline-date">${m.date}</div>
+      <div><strong>${m.title}</strong></div>
+      <div>${m.body}</div>
     `;
-    list.appendChild(el);
-
-    const elFull = el.cloneNode(true);
-    listFull.appendChild(elFull);
+    list.appendChild(li);
   });
 }
 
-// ---- Nav switching ----
-function setupNav() {
-  const navButtons = document.querySelectorAll(".sp-nav-item");
-  const views = {
-    overview: document.getElementById("view-overview"),
-    leads: document.getElementById("view-leads"),
-    messages: document.getElementById("view-messages"),
+// ======== NAVIGATION =========
+function initNav() {
+  const buttons = document.querySelectorAll(".sp-nav-item");
+  const sections = {
+    overview: document.getElementById("section-overview"),
+    leads: document.getElementById("section-leads"),
+    messages: document.getElementById("section-messages"),
+    finance: document.getElementById("section-finance")
   };
 
-  navButtons.forEach((btn) => {
+  buttons.forEach((btn) => {
     btn.addEventListener("click", () => {
-      const view = btn.getAttribute("data-view");
-      navButtons.forEach((b) => b.classList.remove("sp-nav-item--active"));
-      btn.classList.add("sp-nav-item--active");
+      buttons.forEach((b) => b.classList.remove("sp-nav-item-active"));
+      btn.classList.add("sp-nav-item-active");
 
-      Object.keys(views).forEach((key) => {
-        if (views[key]) {
-          views[key].classList.toggle("sp-view--active", key === view);
-        }
+      const target = btn.getAttribute("data-section");
+      Object.keys(sections).forEach((key) => {
+        sections[key].classList.toggle(
+          "sp-section-active",
+          key === target
+        );
       });
     });
   });
 }
 
-// ---- Download CSV ----
-function setupCsvDownload() {
-  const btn = document.getElementById("downloadLeadsBtn");
-  if (!btn) return;
-
+// ======== THEME TOGGLE (OPTIONAL) =========
+function initThemeToggle() {
+  const btn = document.getElementById("toggleTheme");
   btn.addEventListener("click", () => {
-    const rows = [
-      ["Received", "Client", "Contact", "Area", "Service", "Budget", "Status"],
-      ...LEADS.map((l) => [
-        l.received,
-        l.client,
-        l.contact,
-        l.area,
-        l.service,
-        l.budget,
-        l.status,
-      ]),
-    ];
-
-    const csvContent = rows.map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "servicepoint_leads.csv";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
+    document.body.classList.toggle("sp-light");
   });
 }
 
-// ---- Init ----
+// ======== DOWNLOAD CSV (FRONTEND ONLY) =========
+function initDownloadCsv() {
+  document
+    .getElementById("btnDownloadCsv")
+    .addEventListener("click", () => {
+      let csv = "date,client,service,region,status,value\n";
+      demoLeads.forEach((l) => {
+        csv += `${l.date},${l.client},${l.service},${l.region},${l.status},${l.value}\n`;
+      });
+
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "servicepoint_leads.csv";
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+}
+
+// ======== POPUP PLACEHOLDERS FOR NEW JOB / QUICK LEAD ========
+function initButtons() {
+  document.getElementById("btnNewJob").addEventListener("click", () => {
+    alert(
+      "In the live system this would open a form to add a manual job to your pipeline."
+    );
+  });
+  document.getElementById("btnQuickLead").addEventListener("click", () => {
+    alert(
+      "In the live system this would open a quick form to add a walk-in / call-in lead."
+    );
+  });
+}
+
+// ======== INIT ALL =========
 document.addEventListener("DOMContentLoaded", () => {
-  renderLeadsTables();
-  renderMessages();
-  setupNav();
-  setupCsvDownload();
+  initMetrics();
+  initLeadsTable();
+  initMessages();
+  initNav();
+  initThemeToggle();
+  initDownloadCsv();
+  initButtons();
 });
