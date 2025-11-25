@@ -1,224 +1,352 @@
-// ======== DEMO DATA (you can later replace with real API) =========
-const demoMetrics = {
-  newLeadsMonth: 8,
-  jobsBookedMonth: 5,
-  conversionRate: 42,
-  pipeline: {
-    New: 3,
-    Quoted: 4,
-    Scheduled: 2,
-    Progress: 1,
-    Done: 7
-  },
-  today: {
-    newLeads: 2,
-    openJobs: 5,
-    unreadMessages: 3
-  },
-  finance: {
-    invoiced: 48500,
-    paid: 37200,
-    average: 3450
-  }
-};
+// Simple data model for this front-end dashboard only.
+// In future you can plug this into a backend / Supabase.
 
-const demoLeads = [
+const leads = [
   {
-    date: "2025-11-24",
-    client: "Nomsa M.",
-    service: "Geyser replacement",
-    region: "Durban North",
+    id: 1,
+    received: "2025-02-05",
+    client: "Thandi M.",
+    service: "Geyser replacement – Pinetown",
+    channel: "ServicePoint",
     status: "New",
-    value: "R4 500"
+    value: 2800
   },
   {
-    date: "2025-11-23",
-    client: "Thabo L.",
-    service: "Solar + inverter install",
-    region: "Randburg, JHB",
+    id: 2,
+    received: "2025-02-04",
+    client: "Cal Media",
+    service: "Studio renovation – Woodstock",
+    channel: "WhatsApp",
     status: "Quoted",
-    value: "R85 000"
+    value: 18500
   },
   {
-    date: "2025-11-22",
-    client: "Ayesha K.",
-    service: "Interior repaint – 3 rooms",
-    region: "Cape Town CBD",
-    status: "Scheduled",
-    value: "R12 800"
+    id: 3,
+    received: "2025-02-01",
+    client: "PT Nation Sandton",
+    service: "Gym lighting & plugs",
+    channel: "ServicePoint",
+    status: "Booked",
+    value: 12500
+  },
+  {
+    id: 4,
+    received: "2025-01-28",
+    client: "Mr Naidoo",
+    service: "Leak detection – Umhlanga",
+    channel: "Repeat client",
+    status: "Completed",
+    value: 3200
   }
 ];
 
-const demoMessages = [
+const jobs = [
   {
-    date: "2025-11-24",
-    title: "New SLA: respond within 2 hours",
-    body: "Please confirm new leads within 2 business hours to keep your account in good standing."
+    date: "2025-02-06",
+    client: "Thandi M.",
+    service: "Geyser replacement",
+    location: "Pinetown",
+    status: "Site visit"
   },
   {
-    date: "2025-11-22",
-    title: "Client rating 5★ – great work!",
-    body: "Client for Job #1032 mentioned your team was on time and left the site spotless."
+    date: "2025-02-07",
+    client: "Cal Media",
+    service: "Studio renovation – day 1",
+    location: "Woodstock",
+    status: "In progress"
   },
   {
-    date: "2025-11-20",
-    title: "Docs reminder",
-    body: "COC and insurance letter expire next month. Reply with updated copies so we can keep you live on the network."
+    date: "2025-02-10",
+    client: "PT Nation Sandton",
+    service: "Gym lighting & plugs",
+    location: "Sandton",
+    status: "Booked"
   }
 ];
 
-// ======== POPULATE UI =========
-function formatCurrency(amount) {
-  return "R" + amount.toLocaleString("en-ZA");
-}
+const financeLog = [
+  "Invoice #INV-203 sent to PT Nation – R12 500",
+  "Invoice #INV-202 paid by Mr Naidoo – R3 200",
+  "Quote #Q-451 for Cal Media – R18 500 (awaiting approval)"
+];
 
-function initMetrics() {
-  document.getElementById("metric-new-leads").textContent =
-    demoMetrics.newLeadsMonth;
-  document.getElementById("metric-jobs-booked").textContent =
-    demoMetrics.jobsBookedMonth;
-  document.getElementById(
-    "metric-conversion"
-  ).textContent = `${demoMetrics.conversionRate}%`;
+const messages = [
+  {
+    from: "ServicePoint Admin",
+    time: "Today · 09:14",
+    text: "Welcome to your new HQ dashboard. Leads from the main ServicePoint SA site will appear here once routed to you."
+  },
+  {
+    from: "Assistant – KZN",
+    time: "Yesterday · 16:02",
+    text: "Client Thandi M. is available Wednesday afternoon or Thursday morning for the geyser replacement. Please confirm which slot you prefer."
+  },
+  {
+    from: "ServicePoint Admin",
+    time: "Mon · 11:28",
+    text: "Remember to update us if any jobs are cancelled so we can keep your lead quality high."
+  }
+];
 
-  document.getElementById("pipe-new").textContent = demoMetrics.pipeline.New;
-  document.getElementById("pipe-quoted").textContent =
-    demoMetrics.pipeline.Quoted;
-  document.getElementById("pipe-scheduled").textContent =
-    demoMetrics.pipeline.Scheduled;
-  document.getElementById("pipe-progress").textContent =
-    demoMetrics.pipeline.Progress;
-  document.getElementById("pipe-done").textContent = demoMetrics.pipeline.Done;
+document.addEventListener("DOMContentLoaded", () => {
+  wireNavigation();
+  wireThemeToggle();
+  renderDashboardStats();
+  renderJobs();
+  renderLeads();
+  renderFinance();
+  renderMessages();
+  wireLeadPopup();
+  wireInboxForm();
+});
 
-  document.getElementById(
-    "today-new"
-  ).textContent = `${demoMetrics.today.newLeads} new leads today`;
-  document.getElementById(
-    "today-open"
-  ).textContent = `${demoMetrics.today.openJobs} open jobs`;
-  document.getElementById(
-    "today-messages"
-  ).textContent = `${demoMetrics.today.unreadMessages} unread admin messages`;
-
-  document.getElementById("fin-invoiced").textContent = formatCurrency(
-    demoMetrics.finance.invoiced
-  );
-  document.getElementById("fin-paid").textContent = formatCurrency(
-    demoMetrics.finance.paid
-  );
-  document.getElementById("fin-average").textContent = formatCurrency(
-    demoMetrics.finance.average
-  );
-}
-
-function initLeadsTable() {
-  const tbody = document.querySelector("#leadsTable tbody");
-  tbody.innerHTML = "";
-
-  demoLeads.forEach((lead) => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${lead.date}</td>
-      <td>${lead.client}</td>
-      <td>${lead.service}</td>
-      <td>${lead.region}</td>
-      <td>${lead.status}</td>
-      <td>${lead.value}</td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
-
-function initMessages() {
-  const list = document.getElementById("adminMessages");
-  list.innerHTML = "";
-
-  demoMessages.forEach((m) => {
-    const li = document.createElement("li");
-    li.innerHTML = `
-      <div class="sp-timeline-date">${m.date}</div>
-      <div><strong>${m.title}</strong></div>
-      <div>${m.body}</div>
-    `;
-    list.appendChild(li);
-  });
-}
-
-// ======== NAVIGATION =========
-function initNav() {
-  const buttons = document.querySelectorAll(".sp-nav-item");
-  const sections = {
-    overview: document.getElementById("section-overview"),
-    leads: document.getElementById("section-leads"),
-    messages: document.getElementById("section-messages"),
-    finance: document.getElementById("section-finance")
-  };
+/* NAVIGATION */
+function wireNavigation() {
+  const buttons = document.querySelectorAll(".nav-item");
+  const views = document.querySelectorAll(".view");
 
   buttons.forEach((btn) => {
     btn.addEventListener("click", () => {
-      buttons.forEach((b) => b.classList.remove("sp-nav-item-active"));
-      btn.classList.add("sp-nav-item-active");
+      const target = btn.getAttribute("data-view");
 
-      const target = btn.getAttribute("data-section");
-      Object.keys(sections).forEach((key) => {
-        sections[key].classList.toggle(
-          "sp-section-active",
-          key === target
+      buttons.forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+
+      views.forEach((view) => {
+        view.classList.toggle("active", view.id === `view-${target}`);
+      });
+    });
+  });
+}
+
+/* THEME TOGGLE */
+function wireThemeToggle() {
+  const toggle = document.getElementById("themeToggle");
+  toggle.addEventListener("click", () => {
+    document.body.classList.toggle("theme-light");
+    document.body.classList.toggle("theme-dark");
+  });
+}
+
+/* RENDER STATS + PIPELINE */
+function renderDashboardStats() {
+  const totalLeads = leads.length;
+  const jobsBooked = jobs.length;
+
+  const quoted = leads.filter((l) => l.status === "Quoted").length;
+  const booked = leads.filter((l) => l.status === "Booked").length;
+  const completed = leads.filter((l) => l.status === "Completed").length;
+  const newLeads = leads.filter((l) => l.status === "New").length;
+
+  const conversionBase = quoted + booked + completed;
+  const conversion =
+    conversionBase > 0
+      ? Math.round(((booked + completed) / conversionBase) * 100)
+      : 0;
+
+  document.getElementById("statNewLeads").textContent = totalLeads.toString();
+  document.getElementById("statJobsBooked").textContent =
+    jobsBooked.toString();
+  document.getElementById("statConversion").textContent = `${conversion}%`;
+
+  document.getElementById("pipeNew").textContent = newLeads.toString();
+  document.getElementById("pipeQuoted").textContent = quoted.toString();
+  document.getElementById("pipeBooked").textContent = booked.toString();
+  document.getElementById("pipeCompleted").textContent = completed.toString();
+}
+
+/* JOBS TABLE */
+function renderJobs() {
+  const tbody = document.getElementById("jobsTableBody");
+  tbody.innerHTML = "";
+
+  jobs
+    .slice()
+    .sort((a, b) => (a.date > b.date ? 1 : -1))
+    .forEach((job) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${job.date}</td>
+        <td>${job.client}</td>
+        <td>${job.service}</td>
+        <td>${job.location}</td>
+        <td>${job.status}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+}
+
+/* LEADS TABLE */
+function renderLeads() {
+  const tbody = document.getElementById("leadsTableBody");
+  tbody.innerHTML = "";
+
+  leads
+    .slice()
+    .sort((a, b) => (a.received < b.received ? 1 : -1))
+    .forEach((lead) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${lead.received}</td>
+        <td>${lead.client}</td>
+        <td>${lead.service}</td>
+        <td>${lead.channel}</td>
+        <td>${lead.status}</td>
+        <td>${lead.value ? `R${lead.value.toLocaleString("en-ZA")}` : "-"}</td>
+      `;
+      tr.addEventListener("click", () => {
+        alert(
+          `Lead details:\n\nClient: ${lead.client}\nService: ${lead.service}\nChannel: ${lead.channel}\nStatus: ${lead.status}\nEstimated value: ${
+            lead.value ? "R" + lead.value.toLocaleString("en-ZA") : "n/a"
+          }`
         );
       });
-    });
-  });
-}
-
-// ======== THEME TOGGLE (OPTIONAL) =========
-function initThemeToggle() {
-  const btn = document.getElementById("toggleTheme");
-  btn.addEventListener("click", () => {
-    document.body.classList.toggle("sp-light");
-  });
-}
-
-// ======== DOWNLOAD CSV (FRONTEND ONLY) =========
-function initDownloadCsv() {
-  document
-    .getElementById("btnDownloadCsv")
-    .addEventListener("click", () => {
-      let csv = "date,client,service,region,status,value\n";
-      demoLeads.forEach((l) => {
-        csv += `${l.date},${l.client},${l.service},${l.region},${l.status},${l.value}\n`;
-      });
-
-      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "servicepoint_leads.csv";
-      a.click();
-      URL.revokeObjectURL(url);
+      tbody.appendChild(tr);
     });
 }
 
-// ======== POPUP PLACEHOLDERS FOR NEW JOB / QUICK LEAD ========
-function initButtons() {
-  document.getElementById("btnNewJob").addEventListener("click", () => {
-    alert(
-      "In the live system this would open a form to add a manual job to your pipeline."
-    );
-  });
-  document.getElementById("btnQuickLead").addEventListener("click", () => {
-    alert(
-      "In the live system this would open a quick form to add a walk-in / call-in lead."
-    );
+/* FINANCE */
+function renderFinance() {
+  const invoiced = leads
+    .filter((l) => l.status === "Completed")
+    .reduce((sum, l) => sum + (l.value || 0), 0);
+
+  const pipeline = leads
+    .filter((l) => l.status === "Quoted" || l.status === "Booked")
+    .reduce((sum, l) => sum + (l.value || 0), 0);
+
+  document.getElementById("finInvoiced").textContent =
+    "R" + invoiced.toLocaleString("en-ZA");
+  document.getElementById("finPipeline").textContent =
+    "R" + pipeline.toLocaleString("en-ZA");
+  document.getElementById("finPaid").textContent = "R" + 0..toLocaleString();
+
+  const logEl = document.getElementById("financeLog");
+  logEl.innerHTML = "";
+  financeLog.forEach((line) => {
+    const li = document.createElement("li");
+    li.textContent = line;
+    logEl.appendChild(li);
   });
 }
 
-// ======== INIT ALL =========
-document.addEventListener("DOMContentLoaded", () => {
-  initMetrics();
-  initLeadsTable();
-  initMessages();
-  initNav();
-  initThemeToggle();
-  initDownloadCsv();
-  initButtons();
-});
+/* MESSAGES */
+function renderMessages() {
+  const list = document.getElementById("messageList");
+  list.innerHTML = "";
+
+  messages.forEach((msg) => {
+    const div = document.createElement("div");
+    div.className = "message" + (msg.self ? " self" : "");
+    div.innerHTML = `
+      <div class="message-header">
+        <span>${msg.from}</span>
+        <span>${msg.time}</span>
+      </div>
+      <div class="message-body">${msg.text}</div>
+    `;
+    list.appendChild(div);
+  });
+
+  list.scrollTop = list.scrollHeight;
+}
+
+function wireInboxForm() {
+  const form = document.getElementById("messageForm");
+  const textarea = document.getElementById("messageText");
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const text = textarea.value.trim();
+    if (!text) return;
+
+    messages.push({
+      from: "You",
+      time: "Just now",
+      text,
+      self: true
+    });
+
+    textarea.value = "";
+    renderMessages();
+  });
+}
+
+/* LEAD POPUP / MANUAL CAPTURE */
+function wireLeadPopup() {
+  const popup = document.getElementById("leadPopup");
+  const btnNewLead = document.getElementById("btnNewLead");
+  const btnCancel = document.getElementById("popupCancel");
+  const btnSave = document.getElementById("popupSave");
+
+  btnNewLead.addEventListener("click", () => {
+    popup.style.display = "flex";
+  });
+
+  btnCancel.addEventListener("click", () => {
+    popup.style.display = "none";
+    clearPopupFields();
+  });
+
+  btnSave.addEventListener("click", () => {
+    const name = document.getElementById("popupClientName").value.trim();
+    const service = document.getElementById("popupService").value.trim();
+    const valueRaw = document.getElementById("popupValue").value.trim();
+
+    if (!name || !service) {
+      alert("Please add at least a client name and service.");
+      return;
+    }
+
+    const value = valueRaw ? Number(valueRaw) : 0;
+
+    leads.push({
+      id: Date.now(),
+      received: new Date().toISOString().slice(0, 10),
+      client: name,
+      service,
+      channel: "Manual capture",
+      status: "New",
+      value
+    });
+
+    popup.style.display = "none";
+    clearPopupFields();
+    renderDashboardStats();
+    renderLeads();
+    renderFinance();
+  });
+
+  function clearPopupFields() {
+    document.getElementById("popupClientName").value = "";
+    document.getElementById("popupService").value = "";
+    document.getElementById("popupValue").value = "";
+  }
+}
+
+/*
+  NOTE FOR FUTURE:
+  If you want to push a lead into this dashboard from another page,
+  you can call window.addServicePointLead({client, service, value, channel, status})
+  as long as this script is loaded.
+*/
+window.addServicePointLead = function ({
+  client,
+  service,
+  value = 0,
+  channel = "ServicePoint",
+  status = "New"
+}) {
+  leads.push({
+    id: Date.now(),
+    received: new Date().toISOString().slice(0, 10),
+    client,
+    service,
+    channel,
+    status,
+    value
+  });
+  renderDashboardStats();
+  renderLeads();
+  renderFinance();
+};
