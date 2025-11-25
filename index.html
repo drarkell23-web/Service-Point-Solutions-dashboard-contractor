@@ -1,12 +1,528 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>ServicePoint SA – Contractor Portal</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-  </head>
-  <body class="bg-slate-900">
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <title>ServicePoint SA — Contractor Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta
+    name="description"
+    content="ServicePoint SA — Contractor control centre for jobs, leads, tasks and finances."
+  />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="app">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">SP</div>
+        <div class="brand-text">
+          <h1>ServicePoint SA</h1>
+          <p>Contractor HQ dashboard</p>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <button class="nav-item active" data-section="overview">
+          <span class="nav-icon">📊</span>
+          <span>Operations</span>
+        </button>
+        <button class="nav-item" data-section="calendar">
+          <span class="nav-icon">📅</span>
+          <span>Jobs calendar</span>
+        </button>
+        <button class="nav-item" data-section="clients">
+          <span class="nav-icon">👥</span>
+          <span>Leads & clients</span>
+        </button>
+        <button class="nav-item" data-section="finance">
+          <span class="nav-icon">💰</span>
+          <span>Finance</span>
+        </button>
+        <button class="nav-item" data-section="galleries">
+          <span class="nav-icon">🧾</span>
+          <span>Job sheets</span>
+        </button>
+        <button class="nav-item" data-section="tasks">
+          <span class="nav-icon">✅</span>
+          <span>Tasks</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button class="btn-outline" id="toggle-theme">Toggle dark / light</button>
+        <p class="small-muted">
+          Built for ServicePoint contractors: jobs, leads, finance and compliance in one place.
+        </p>
+      </div>
+    </aside>
+
+    <!-- MAIN AREA -->
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <h2 id="section-title">Operations overview</h2>
+          <p class="subtitle">
+            Live control hub for your ServicePoint jobs, leads and site teams.
+          </p>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn-primary" id="btn-new-booking">+ New job</button>
+          <button class="btn-ghost" id="btn-add-lead">+ Quick ServicePoint enquiry</button>
+          <div class="avatar">
+            <div class="avatar-img">SP</div>
+            <div class="avatar-meta">
+              <span class="avatar-name">Contractor account</span>
+              <span class="avatar-role">ServicePoint dashboard</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- OVERVIEW SECTION -->
+      <section class="section section-active" id="section-overview">
+        <div class="grid-4">
+          <div class="card metric">
+            <div class="metric-top">
+              <p class="metric-label">New ServicePoint leads (month)</p>
+              <span class="metric-chip positive">+19% vs last month</span>
+            </div>
+            <h3 class="metric-value" id="metric-leads">68</h3>
+            <p class="metric-sub">From ServicePoint, Google, WhatsApp & repeat clients.</p>
+          </div>
+
+          <div class="card metric">
+            <div class="metric-top">
+              <p class="metric-label">Jobs booked</p>
+              <span class="metric-chip neutral">This month</span>
+            </div>
+            <h3 class="metric-value" id="metric-shoots">44</h3>
+            <p class="metric-sub">Call-outs, projects, service plans & quotes won.</p>
+          </div>
+
+          <div class="card metric">
+            <div class="metric-top">
+              <p class="metric-label">Projected revenue</p>
+              <span class="metric-chip positive">In ZAR</span>
+            </div>
+            <h3 class="metric-value" id="metric-revenue">R 142 800</h3>
+            <p class="metric-sub">Based on confirmed jobs this month.</p>
+          </div>
+
+          <div class="card metric">
+            <div class="metric-top">
+              <p class="metric-label">Urgent jobs</p>
+              <span class="metric-chip warning">Within 24 hours</span>
+            </div>
+            <h3 class="metric-value" id="metric-invoices">7</h3>
+            <p class="metric-sub">Priority call-outs & critical issues.</p>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <h3>Revenue & job volume</h3>
+              <p class="small-muted">Monthly view of revenue and completed jobs.</p>
+            </div>
+            <canvas id="chart-revenue" height="140"></canvas>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3>Job mix</h3>
+              <p class="small-muted">Which ServicePoint jobs are keeping you busy.</p>
+            </div>
+            <canvas id="chart-shoot-types" height="140"></canvas>
+          </div>
+        </div>
+
+        <div class="grid-3">
+          <div class="card">
+            <div class="card-header">
+              <h3>Next 7 days</h3>
+              <p class="small-muted">Tap a job for full work order & invoice.</p>
+            </div>
+            <ul class="list list-timeline" id="upcoming-list"></ul>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3>High-value enquiries</h3>
+              <p class="small-muted">Leads with the highest job-value potential.</p>
+            </div>
+            <ul class="list list-leads" id="hot-leads"></ul>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3>Site notes</h3>
+              <p class="small-muted">Key notes, safety reminders & material lists.</p>
+            </div>
+            <textarea
+              id="quick-notes"
+              placeholder="Gate codes, parts to order, crew notes, client preferences..."
+            ></textarea>
+            <button class="btn-secondary full-width" id="save-notes">Save notes</button>
+            <p class="small-muted" id="notes-status"></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- CALENDAR SECTION -->
+      <section class="section" id="section-calendar">
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <h3>Jobs calendar</h3>
+              <p class="small-muted">Select a date to see all jobs & teams.</p>
+            </div>
+            <input type="date" id="calendar-date" />
+            <ul class="list list-timeline" id="calendar-day-list"></ul>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3>Fast job creator</h3>
+              <p class="small-muted">Log a new ServicePoint job in seconds.</p>
+            </div>
+            <form id="booking-form" class="form-grid">
+              <label>
+                Client name
+                <input type="text" id="booking-client" required />
+              </label>
+              <label>
+                Job type
+                <select id="booking-type">
+                  <option>Emergency call-out</option>
+                  <option>Solar & backup</option>
+                  <option>Electrical fault</option>
+                  <option>Plumbing & leaks</option>
+                  <option>Renovation / project</option>
+                  <option>Maintenance contract</option>
+                  <option>Inspection / report</option>
+                  <option>Other</option>
+                </select>
+              </label>
+              <label>
+                Date
+                <input type="date" id="booking-date" required />
+              </label>
+              <label>
+                Time
+                <input type="time" id="booking-time" required />
+              </label>
+              <label>
+                Quoted value (ZAR)
+                <input type="number" id="booking-price" min="0" step="100" />
+              </label>
+              <label>
+                Site address
+                <input
+                  type="text"
+                  id="booking-location"
+                  placeholder="Suburb, complex, site reference."
+                />
+              </label>
+              <button type="submit" class="btn-primary full-width">Save job</button>
+              <p class="small-muted">
+                Jobs are stored in this dashboard and can be exported later.
+              </p>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <!-- CLIENTS / LEADS SECTION -->
+      <section class="section" id="section-clients">
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <h3>Quotes & pipeline</h3>
+              <p class="small-muted">
+                Tap a row for full client profile and quote history.
+              </p>
+            </div>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Client</th>
+                  <th>Job type</th>
+                  <th>Stage</th>
+                  <th>Value</th>
+                  <th>Next step</th>
+                </tr>
+              </thead>
+              <tbody id="clients-table"></tbody>
+            </table>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3>ServicePoint lead capture</h3>
+              <p class="small-muted">
+                This mirrors what comes in from your ServicePoint leads (website, bot, ads).
+              </p>
+            </div>
+            <form id="lead-form" class="form-grid">
+              <label>
+                Name
+                <input type="text" id="lead-name" required />
+              </label>
+              <label>
+                Contact (email or WhatsApp)
+                <input type="text" id="lead-contact" required />
+              </label>
+              <label>
+                Job type
+                <select id="lead-type">
+                  <option>Emergency call-out</option>
+                  <option>Solar & backup power</option>
+                  <option>Electrical</option>
+                  <option>Plumbing / leak detection</option>
+                  <option>Renovation / project</option>
+                  <option>Service contract</option>
+                  <option>Real estate & snag list</option>
+                  <option>Other</option>
+                </select>
+              </label>
+              <label class="full-width">
+                Job description
+                <textarea
+                  id="lead-message"
+                  rows="3"
+                  placeholder="What is needed, where is the site and preferred days?"
+                ></textarea>
+              </label>
+              <button type="submit" class="btn-secondary full-width">Add enquiry</button>
+              <p class="small-muted">
+                On a live build this can sync to your email, WhatsApp, Telegram or CRM.
+              </p>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <!-- FINANCE SECTION -->
+      <section class="section" id="section-finance">
+        <div class="grid-3">
+          <div class="card">
+            <div class="card-header">
+              <h3>Revenue snapshot</h3>
+              <p class="small-muted">Key numbers for this ServicePoint contractor account in ZAR.</p>
+            </div>
+            <ul class="list list-simple" id="finance-summary"></ul>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3>Outstanding invoices</h3>
+              <p class="small-muted">Follow up before you lose the cashflow.</p>
+            </div>
+            <ul class="list list-simple" id="finance-invoices"></ul>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3>Service mix</h3>
+              <p class="small-muted">See which services generate most revenue.</p>
+            </div>
+            <canvas id="chart-packages" height="150"></canvas>
+          </div>
+        </div>
+
+        <div class="grid-2 finance-lower">
+          <div class="card">
+            <div class="card-header">
+              <h3>Expenses & profit</h3>
+              <p class="small-muted">
+                Track core expenses and see an instant profit estimate.
+              </p>
+            </div>
+            <form id="expense-form" class="form-grid">
+              <label>
+                Item
+                <input type="text" id="expense-item" required />
+              </label>
+              <label>
+                Amount (ZAR)
+                <input type="number" id="expense-amount" min="0" step="50" required />
+              </label>
+              <label>
+                Category
+                <select id="expense-category">
+                  <option>Materials</option>
+                  <option>Labour</option>
+                  <option>Vehicles & fuel</option>
+                  <option>Tools & equipment</option>
+                  <option>Office & admin</option>
+                  <option>Other</option>
+                </select>
+              </label>
+              <label>
+                Date
+                <input type="date" id="expense-date" required />
+              </label>
+              <button type="submit" class="btn-primary full-width">Add expense</button>
+            </form>
+            <ul class="list list-simple" id="expense-list"></ul>
+            <p class="small-muted" id="profit-summary"></p>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3>Service packages</h3>
+              <p class="small-muted">
+                Overview of your current call-out, project and maintenance packages.
+              </p>
+            </div>
+            <ul class="list list-simple" id="package-list"></ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- JOB SHEETS SECTION -->
+      <section class="section" id="section-galleries">
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <h3>Job sheets & compliance</h3>
+              <p class="small-muted">
+                Track completed jobs, compliance docs and supporting photos.
+              </p>
+            </div>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Client</th>
+                  <th>Job type</th>
+                  <th>Status</th>
+                  <th>Photos</th>
+                  <th>Link / Ref</th>
+                </tr>
+              </thead>
+              <tbody id="galleries-table"></tbody>
+            </table>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3>Job checklist</h3>
+              <p class="small-muted">
+                Make sure every ServicePoint job is safe, neat and fully documented.
+              </p>
+            </div>
+            <ul class="checklist" id="gallery-checklist">
+              <li>
+                <label><input type="checkbox" /> Confirm fault / scope with client before work</label>
+              </li>
+              <li>
+                <label><input type="checkbox" /> Take clear before photos</label>
+              </li>
+              <li>
+                <label><input type="checkbox" /> Use correct materials and follow standards</label>
+              </li>
+              <li>
+                <label><input type="checkbox" /> Take during / after photos</label>
+              </li>
+              <li>
+                <label><input type="checkbox" /> Walk client through work done & clean-up</label>
+              </li>
+              <li>
+                <label><input type="checkbox" /> Upload docs / compliance & close job</label>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- TASKS SECTION -->
+      <section class="section" id="section-tasks">
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <h3>Today</h3>
+              <p class="small-muted">
+                Tasks with due dates today or overdue for your contractor account.
+              </p>
+            </div>
+            <ul class="list list-tasks" id="tasks-today"></ul>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3>All tasks</h3>
+              <p class="small-muted">
+                Keep track of admin, quotes, jobs, vehicles and more.
+              </p>
+            </div>
+            <form id="task-form" class="form-grid">
+              <label>
+                Task
+                <input type="text" id="task-title" required />
+              </label>
+              <label>
+                Due date
+                <input type="date" id="task-date" required />
+              </label>
+              <label>
+                Category
+                <select id="task-category">
+                  <option>Jobs</option>
+                  <option>Quotations</option>
+                  <option>Safety / compliance</option>
+                  <option>Vehicles & stock</option>
+                  <option>Finance</option>
+                  <option>Marketing</option>
+                  <option>Admin</option>
+                </select>
+              </label>
+              <button type="submit" class="btn-primary full-width">Add task</button>
+            </form>
+
+            <ul class="list list-tasks" id="tasks-all"></ul>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Job / invoice modal -->
+  <div class="modal-backdrop" id="job-modal-backdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="job-modal-title">Job & invoice</h3>
+        <button class="modal-close" data-close="job-modal-backdrop">×</button>
+      </div>
+      <div class="modal-body" id="job-modal-body"></div>
+      <div class="modal-footer">
+        <button class="btn-secondary" id="btn-print-invoice">Print / Save as PDF</button>
+        <button class="btn-ghost" data-close="job-modal-backdrop">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Client modal -->
+  <div class="modal-backdrop" id="client-modal-backdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="client-modal-title">Client profile</h3>
+        <button class="modal-close" data-close="client-modal-backdrop">×</button>
+      </div>
+      <div class="modal-body" id="client-modal-body"></div>
+      <div class="modal-footer">
+        <button class="btn-ghost" data-close="client-modal-backdrop">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="script.js"></script>
+</body>
 </html>
