@@ -1,364 +1,278 @@
-// THEME TOGGLE
+// ===== THEME TOGGLE =====
 const themeToggle = document.getElementById("themeToggle");
+const body = document.body;
+
 if (themeToggle) {
   themeToggle.addEventListener("click", () => {
-    document.body.classList.toggle("theme-light");
-    document.body.classList.toggle("theme-dark");
+    const isDark = body.classList.toggle("theme-light");
+    if (isDark) {
+      themeToggle.textContent = "☀ Light";
+    } else {
+      themeToggle.textContent = "☾ Dark";
+    }
   });
 }
 
-// TAB SWITCHING
-document.querySelectorAll(".tab-btn").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    const tab = btn.dataset.tab;
-    document
-      .querySelectorAll(".tab-btn")
-      .forEach((b) => b.classList.toggle("active", b === btn));
-    document.querySelectorAll(".tab-panel").forEach((p) => {
-      p.classList.toggle("active", p.id === `tab-${tab}`);
-    });
+// ===== NAV TABS =====
+const tabs = document.querySelectorAll(".nav-tab");
+const panels = document.querySelectorAll(".tab-panel");
+
+tabs.forEach((tab) => {
+  tab.addEventListener("click", () => {
+    const target = tab.dataset.tab;
+
+    tabs.forEach((t) => t.classList.remove("active"));
+    panels.forEach((p) => p.classList.remove("active"));
+
+    tab.classList.add("active");
+    document.getElementById(`tab-${target}`).classList.add("active");
   });
 });
 
-// MOCK DATA – you can later plug in APIs here
+// ===== MOCK DATA (replace with real API later) =====
 const pipelineData = [
-  { stage: "New", count: 2, items: ["WhatsApp – Geyser", "Website – Solar quote"] },
-  {
-    stage: "Quoted",
-    count: 3,
-    items: ["Leak detection", "Kitchen renovation", "Complex repaint"],
-  },
-  {
-    stage: "Booked",
-    count: 1,
-    items: ["Saturday – Fibre trenching"],
-  },
-  {
-    stage: "Completed",
-    count: 0,
-    items: ["No jobs closed yet this week"],
-  },
+  { stage: "New", count: 3 },
+  { stage: "Contacted", count: 2 },
+  { stage: "Quoted", count: 1 },
+  { stage: "Booked", count: 0 }
 ];
 
-const todayItems = [
+const activityData = [
+  "New lead: Kitchen renovation in Durban North.",
+  "Quote awaiting approval: Leak detection in Randburg.",
+  "Job booked: Solar install in Ballito for Friday.",
+  "Reminder: Follow up on unpaid invoice INV-104."
+];
+
+const jobsData = [
   {
+    date: "Today",
+    time: "10:00",
+    client: "Thandi N.",
+    service: "Leak detection – Morningside, Durban"
+  },
+  {
+    date: "Today",
+    time: "14:30",
+    client: "Johan V.",
+    service: "DB board upgrade – Randburg"
+  },
+  {
+    date: "Tomorrow",
     time: "09:00",
-    title: "Site visit – Geyser replacement",
-    detail: "Umbilo · Meet client S. Khumalo",
-  },
-  {
-    time: "11:30",
-    title: "Quote follow-up",
-    detail: "Kitchen remodelling · WhatsApp R. Pillay",
-  },
-  {
-    time: "15:00",
-    title: "Team check-in",
-    detail: "Confirm materials for tomorrow’s jobs",
-  },
+    client: "Cape Property Care",
+    service: "Solar maintenance – Stellenbosch"
+  }
 ];
 
-const leads = [
+const leadsData = [
   {
     received: "Today",
-    client: "Thandi N.",
-    service: "Burst geyser – emergency",
-    region: "Durban North",
-    status: "Open",
-    value: "R4 800",
+    client: "Cal Media",
+    service: "Real-estate photography",
+    region: "CPT – Southern Suburbs",
+    budget: "R 2 500",
+    status: "New",
+    source: "ServicePoint SA"
   },
   {
     received: "Yesterday",
-    client: "Cape Property Care",
-    service: "Block of flats – solar assessment",
-    region: "Cape Town CBD",
-    status: "Follow-up",
-    value: "R95 000",
-  },
-];
-
-const invoices = [
-  {
-    date: "2025-02-03",
-    num: "SP-INV-1023",
-    client: "M. Dlamini",
-    job: "Bathroom renovation – Phase 1",
-    amount: "R38 500",
-    status: "Paid",
+    client: "PT Nation Sandton",
+    service: "Gym fit-out – electrical & flooring",
+    region: "JHB – Sandton",
+    budget: "R 85 000",
+    status: "Quoted",
+    source: "WhatsApp"
   },
   {
-    date: "2025-02-05",
-    num: "SP-INV-1024",
-    client: "Urban Apartments (Body Corp)",
-    job: "Lift lobby repaint – Towers A/B",
-    amount: "R62 000",
-    status: "Sent",
+    received: "2 days ago",
+    client: "KZN PowerWorks",
+    service: "Roof waterproofing",
+    region: "KZN – Durban North",
+    budget: "R 32 000",
+    status: "Booked",
+    source: "Website"
   },
   {
-    date: "2025-02-07",
-    num: "SP-INV-1025",
-    client: "CAL MEDIA Studio",
-    job: "Electrical compliance – studio upgrade",
-    amount: "R12 750",
-    status: "Draft",
-  },
-];
-
-const inboxMessages = [
-  {
-    from: "SP Admin – Finance",
-    time: "Today · 09:24",
-    body:
-      "Reminder: Please upload proof of bank details for EFT payouts.\n" +
-      "Reply on email if you need help.",
-  },
-  {
-    from: "SP Admin – Leads",
-    time: "Yesterday · 15:02",
-    body:
-      "New region trial: We’re sending you more leads in Durban North for the next 2 weeks.\n" +
-      "Keep your response time under 15 minutes for best ranking.",
-  },
-  {
-    from: "SP Admin – Compliance",
-    time: "Mon · 11:45",
-    body:
-      "Your electrical COC document expires in 30 days.\n" +
-      "Please upload the renewed certificate when ready.",
-  },
-];
-
-// RENDER OPERATIONS / PIPELINE
-const pipelineColumnsEl = document.getElementById("pipelineColumns");
-if (pipelineColumnsEl) {
-  pipelineData.forEach((col) => {
-    const div = document.createElement("div");
-    div.className = "pipeline-column";
-    div.innerHTML = `
-      <h3>${col.stage}</h3>
-      <div class="pipeline-count">${col.count}</div>
-      <ul class="pipeline-items">
-        ${col.items.map((i) => `<li>${i}</li>`).join("")}
-      </ul>
-    `;
-    pipelineColumnsEl.appendChild(div);
-  });
-}
-
-// Today timeline
-const timelineEl = document.getElementById("todayTimeline");
-if (timelineEl) {
-  todayItems.forEach((item) => {
-    const li = document.createElement("li");
-    li.className = "timeline-item";
-    li.innerHTML = `
-      <div class="timeline-time">${item.time}</div>
-      <div class="timeline-body">
-        <strong>${item.title}</strong>
-        <span>${item.detail}</span>
-      </div>
-    `;
-    timelineEl.appendChild(li);
-  });
-}
-
-// METRICS – simple calc from leads + invoices
-const metricNewLeadsEl = document.getElementById("metricNewLeads");
-const metricJobsBookedEl = document.getElementById("metricJobsBooked");
-const metricConversionEl = document.getElementById("metricConversion");
-if (metricNewLeadsEl) {
-  metricNewLeadsEl.textContent = leads.length.toString();
-}
-if (metricJobsBookedEl) {
-  metricJobsBookedEl.textContent = "0"; // placeholder – wire to real jobs later
-}
-if (metricConversionEl) {
-  metricConversionEl.textContent = "0%"; // placeholder
-}
-
-// LEADS TABLE
-const leadTableBody = document.getElementById("leadTableBody");
-const leadCountLabel = document.getElementById("leadCountLabel");
-
-function renderLeads() {
-  if (!leadTableBody) return;
-  leadTableBody.innerHTML = "";
-  leads.forEach((lead) => {
-    const tr = document.createElement("tr");
-    const statusClass =
-      lead.status === "Open"
-        ? "status-open"
-        : lead.status === "Follow-up"
-        ? "status-followup"
-        : "status-closed";
-    tr.innerHTML = `
-      <td>${lead.received}</td>
-      <td>${lead.client}</td>
-      <td>${lead.service}</td>
-      <td>${lead.region}</td>
-      <td><span class="status-pill ${statusClass}">${lead.status}</span></td>
-      <td>${lead.value}</td>
-    `;
-    leadTableBody.appendChild(tr);
-  });
-  if (leadCountLabel) {
-    leadCountLabel.textContent = `${leads.length} open`;
+    received: "3 days ago",
+    client: "Homeowner – Msomi family",
+    service: "Geyser replacement",
+    region: "KZN – Umlazi",
+    budget: "R 7 500",
+    status: "Closed",
+    source: "Repeat"
   }
-}
-renderLeads();
+];
 
-// Simulate adding a lead (until you have real API wired)
-const btnSimLead = document.getElementById("btnSimLead");
-if (btnSimLead) {
-  btnSimLead.addEventListener("click", () => {
-    leads.unshift({
-      received: "Just now",
-      client: "New SP website lead",
-      service: "General service request",
-      region: "KZN · Durban",
-      status: "Open",
-      value: "TBC",
-    });
-    renderLeads();
-    if (metricNewLeadsEl) {
-      metricNewLeadsEl.textContent = leads.length.toString();
-    }
-    alert("Example lead added – wire this to your real API later.");
-  });
-}
+const financeRows = [
+  {
+    invoice: "INV-104",
+    client: "Msomi family",
+    service: "Geyser replacement",
+    amount: "R 7 500",
+    status: "Awaiting payment",
+    due: "3 days"
+  },
+  {
+    invoice: "INV-103",
+    client: "PT Nation Sandton",
+    service: "Electrical & flooring",
+    amount: "R 74 000",
+    status: "Part paid",
+    due: "10 days"
+  },
+  {
+    invoice: "INV-102",
+    client: "Cal Media",
+    service: "Studio rewiring",
+    amount: "R 18 500",
+    status: "Paid",
+    due: "Paid"
+  }
+];
 
-// FINANCE
-const metricInvoiced = document.getElementById("metricInvoiced");
-const metricPaid = document.getElementById("metricPaid");
-const metricOutstanding = document.getElementById("metricOutstanding");
-const invoiceTableBody = document.getElementById("invoiceTableBody");
+// ===== POPULATE OPERATIONS TAB =====
+const pipelineGrid = document.getElementById("pipelineGrid");
+const activityList = document.getElementById("activityList");
 
-function renderFinance() {
-  if (!invoiceTableBody) return;
-  let total = 0;
-  invoices.forEach((inv) => {
-    const amount = parseFloat(inv.amount.replace(/[R\s,]/g, "")) || 0;
-    total += amount;
-  });
-
-  const paidTotal = invoices
-    .filter((i) => i.status === "Paid")
-    .reduce(
-      (sum, i) => sum + (parseFloat(i.amount.replace(/[R\s,]/g, "")) || 0),
-      0
-    );
-  const outstandingTotal = total - paidTotal;
-
-  if (metricInvoiced) metricInvoiced.textContent = `R${total.toLocaleString()}`;
-  if (metricPaid) metricPaid.textContent = `R${paidTotal.toLocaleString()}`;
-  if (metricOutstanding)
-    metricOutstanding.textContent = `R${outstandingTotal.toLocaleString()}`;
-
-  invoiceTableBody.innerHTML = "";
-  invoices.forEach((inv) => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${inv.date}</td>
-      <td>${inv.num}</td>
-      <td>${inv.client}</td>
-      <td>${inv.job}</td>
-      <td>${inv.amount}</td>
-      <td>${inv.status}</td>
-    `;
-    invoiceTableBody.appendChild(tr);
-  });
-}
-renderFinance();
-
-// INBOX
-const inboxList = document.getElementById("inboxList");
-if (inboxList) {
-  inboxMessages.forEach((msg) => {
+if (pipelineGrid) {
+  pipelineData.forEach((stage) => {
     const div = document.createElement("div");
-    div.className = "inbox-msg";
+    div.className = "pipeline-stage";
     div.innerHTML = `
-      <div class="inbox-meta">
-        <span>${msg.from}</span>
-        <span>${msg.time}</span>
-      </div>
-      <div class="inbox-body">${msg.body}</div>
+      <div class="pipeline-label">${stage.stage}</div>
+      <div class="pipeline-value">${stage.count}</div>
     `;
-    inboxList.appendChild(div);
+    pipelineGrid.appendChild(div);
   });
 }
 
-// JOBS CALENDAR – simple week generator
-const calendarGrid = document.getElementById("calendarGrid");
-const weekRangeLabel = document.getElementById("weekRangeLabel");
-
-function buildWeekCalendar() {
-  if (!calendarGrid) return;
-  calendarGrid.innerHTML = "";
-  const now = new Date();
-  const day = now.getDay(); // 0-6
-  const mondayOffset = day === 0 ? -6 : 1 - day;
-  const monday = new Date(now);
-  monday.setDate(now.getDate() + mondayOffset);
-
-  const formatter = new Intl.DateTimeFormat("en-ZA", {
-    weekday: "short",
-    day: "numeric",
+if (activityList) {
+  activityData.forEach((item) => {
+    const li = document.createElement("li");
+    li.textContent = item;
+    activityList.appendChild(li);
   });
+}
 
-  const jobsMap = {
-    1: ["09:00 – Geyser replacement"],
-    3: ["11:00 – Solar site check", "15:30 – Body corp meeting"],
-    4: ["14:00 – CCTV quote"],
-  };
+// Simple stats from leads
+const statLeadsMonth = document.getElementById("statLeadsMonth");
+const statJobsBooked = document.getElementById("statJobsBooked");
+const statConversion = document.getElementById("statConversion");
 
-  for (let i = 0; i < 7; i++) {
-    const date = new Date(monday);
-    date.setDate(monday.getDate() + i);
-    const label = formatter.format(date);
+if (statLeadsMonth && statJobsBooked && statConversion) {
+  const totalLeads = leadsData.length;
+  const booked = leadsData.filter((l) => l.status === "Booked").length;
+  const conversion = totalLeads ? Math.round((booked / totalLeads) * 100) : 0;
+
+  statLeadsMonth.textContent = totalLeads;
+  statJobsBooked.textContent = booked;
+  statConversion.textContent = conversion + "%";
+}
+
+// ===== JOBS TAB =====
+const jobsList = document.getElementById("jobsList");
+const calendarStrip = document.getElementById("calendarStrip");
+
+if (jobsList) {
+  jobsData.forEach((job) => {
+    const li = document.createElement("li");
+    li.innerHTML = `<strong>${job.date}</strong> · ${job.time} · ${job.client} – ${job.service}`;
+    jobsList.appendChild(li);
+  });
+}
+
+if (calendarStrip) {
+  const today = new Date();
+  for (let i = 0; i < 14; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() + i);
     const div = document.createElement("div");
     div.className = "calendar-day";
-
-    const header = document.createElement("div");
-    header.className = "calendar-day-header";
-    header.innerHTML = `<span>${label}</span>`;
-
-    const jobsBox = document.createElement("div");
-    jobsBox.className = "calendar-day-jobs";
-
-    const dayJobs = jobsMap[i] || [];
-    if (dayJobs.length === 0) {
-      jobsBox.innerHTML = `<span style="color:var(--text-muted);font-size:10px;">No jobs yet</span>`;
-    } else {
-      dayJobs.forEach((j) => {
-        const chip = document.createElement("div");
-        chip.className = "calendar-job";
-        chip.textContent = j;
-        jobsBox.appendChild(chip);
-      });
-    }
-
-    div.appendChild(header);
-    div.appendChild(jobsBox);
-    calendarGrid.appendChild(div);
-  }
-
-  if (weekRangeLabel) {
-    const end = new Date(monday);
-    end.setDate(monday.getDate() + 6);
-    const shortFmt = new Intl.DateTimeFormat("en-ZA", {
-      day: "numeric",
-      month: "short",
-    });
-    weekRangeLabel.textContent = `${shortFmt.format(monday)} – ${shortFmt.format(
-      end
-    )}`;
+    const day = d.toLocaleDateString("en-ZA", { weekday: "short" });
+    const date = d.getDate();
+    div.innerHTML = `<span class="date">${date}</span><span>${day}</span>`;
+    calendarStrip.appendChild(div);
   }
 }
-buildWeekCalendar();
 
-/* POPUP + TELEGRAM LEAD
-   Same idea as main site: human assistant chat.
-*/
+// ===== LEADS TAB =====
+const leadsTableBody = document.querySelector("#leadsTable tbody");
+const filterButtons = document.querySelectorAll(".pill-filter-btn");
+
+function renderLeads(filterStatus = "all") {
+  if (!leadsTableBody) return;
+  leadsTableBody.innerHTML = "";
+
+  leadsData
+    .filter((lead) => filterStatus === "all" || lead.status === filterStatus)
+    .forEach((lead, index) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${lead.received}</td>
+        <td>${lead.client}</td>
+        <td>${lead.service}</td>
+        <td>${lead.region}</td>
+        <td>${lead.budget}</td>
+        <td><span class="lead-status ${lead.status}">${lead.status}</span></td>
+        <td>${lead.source}</td>
+        <td><button class="btn btn-ghost btn-small" data-lead-index="${index}">View</button></td>
+      `;
+      leadsTableBody.appendChild(tr);
+    });
+}
+
+if (leadsTableBody) {
+  renderLeads();
+
+  filterButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      filterButtons.forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      renderLeads(btn.dataset.status);
+    });
+  });
+
+  // When clicking "View", open popup pre-filled (could be expanded later)
+  leadsTableBody.addEventListener("click", (e) => {
+    const target = e.target;
+    if (target.matches("button[data-lead-index]")) {
+      const idx = target.getAttribute("data-lead-index");
+      const lead = leadsData[idx];
+      if (lead) {
+        openPopup(`Lead: ${lead.client} · ${lead.service}`);
+      }
+    }
+  });
+}
+
+// ===== FINANCE TAB =====
+const financeTableBody = document.querySelector("#financeTable tbody");
+const statQuoted = document.getElementById("statQuoted");
+const statInvoiced = document.getElementById("statInvoiced");
+const statOutstanding = document.getElementById("statOutstanding");
+
+if (financeTableBody) {
+  financeRows.forEach((row) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${row.invoice}</td>
+      <td>${row.client}</td>
+      <td>${row.service}</td>
+      <td>${row.amount}</td>
+      <td>${row.status}</td>
+      <td>${row.due}</td>
+    `;
+    financeTableBody.appendChild(tr);
+  });
+
+  // simple totals for demo
+  statQuoted.textContent = "R 110 000";
+  statInvoiced.textContent = "R 100 000";
+  statOutstanding.textContent = "R 17 500";
+}
+
+// ===== POPUP + TELEGRAM LEAD (same style as main site, ready for backend hook) =====
 const popupEl = document.getElementById("popup");
 const selectedServiceEl = document.getElementById("selectedService");
 
@@ -377,10 +291,14 @@ function closePopup() {
   popupEl.style.display = "none";
 }
 
+// expose to HTML
 window.openPopupFromCTA = openPopupFromCTA;
-window.openPopup = openPopup;
-window.closePopup = closePopup;
+window.scrollToWhy = function () {
+  const el = document.getElementById("why-section");
+  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+};
 
+// SEND LEAD -> Telegram (same token you already use)
 function sendLead() {
   const nameInput = document.getElementById("clientName");
   const phoneInput = document.getElementById("clientPhone");
@@ -398,47 +316,111 @@ function sendLead() {
   const botToken = "8526401033:AAFrG8IH8xqQL_RTD7s7JLyxZpc8e8GOyyg";
   const chatId = "8187670531";
 
-  const msg = `🔥 *New Contractor HQ Lead*
+  const msg = `🔥 *New ServicePoint Contractor Lead*
 📌 Service: ${service}
-👤 Name: ${name}
-📱 Phone: ${phone}
-💼 Source: Contractor HQ dashboard`;
+👤 Contractor: ${name}
+📱 Phone: ${phone}`;
 
   fetch(
-    `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}` +
-      `&text=${encodeURIComponent(msg)}&parse_mode=Markdown`
+    `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(
+      msg
+    )}&parse_mode=Markdown`
   )
     .then(() => {
       alert(
-        "Thanks! Our human assistant has received your request and will follow up."
+        "Thanks! ServicePoint HQ has received this and will route leads your way."
       );
       nameInput.value = "";
       phoneInput.value = "";
       closePopup();
     })
     .catch(() => {
-      alert("We could not send the request right now. Please try again.");
+      alert(
+        "We couldn't reach the assistant right now. Please try again in a moment."
+      );
     });
 }
 
 window.sendLead = sendLead;
+window.closePopup = closePopup;
 
-// Buttons that open popup from Operations
+// ===== INBOX =====
+const inboxThread = document.getElementById("inboxThread");
+const inboxForm = document.getElementById("inboxForm");
+const inboxMessageInput = document.getElementById("inboxMessage");
+
+const starterMessages = [
+  {
+    from: "hq",
+    text: "Hi! Welcome to your ServicePoint SA contractor dashboard.",
+    time: "09:00"
+  },
+  {
+    from: "hq",
+    text: "When we send you a new lead, we’ll drop a note here as well.",
+    time: "09:02"
+  }
+];
+
+function renderMessage(msg) {
+  if (!inboxThread) return;
+  const row = document.createElement("div");
+  row.className = "message-row " + (msg.from === "hq" ? "message-hq" : "message-me");
+
+  const bubble = document.createElement("div");
+  bubble.className = "message-bubble";
+  bubble.innerHTML = `
+    <div>${msg.text}</div>
+    <div class="message-meta">${msg.from === "hq" ? "ServicePoint HQ" : "You"} · ${
+    msg.time
+  }</div>
+  `;
+
+  row.appendChild(bubble);
+  inboxThread.appendChild(row);
+  inboxThread.scrollTop = inboxThread.scrollHeight;
+}
+
+if (inboxThread) {
+  starterMessages.forEach(renderMessage);
+}
+
+if (inboxForm && inboxMessageInput) {
+  inboxForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const text = inboxMessageInput.value.trim();
+    if (!text) return;
+    const time = new Date().toLocaleTimeString("en-ZA", {
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+    renderMessage({ from: "me", text, time });
+    inboxMessageInput.value = "";
+  });
+}
+
+// Buttons for new job / quick lead (just send you to inbox for now)
 const btnNewJob = document.getElementById("btnNewJob");
-if (btnNewJob) {
-  btnNewJob.addEventListener("click", () =>
-    openPopup("New job – specify details with assistant")
-  );
-}
 const btnQuickLead = document.getElementById("btnQuickLead");
-if (btnQuickLead) {
-  btnQuickLead.addEventListener("click", () =>
-    openPopup("Quick ServicePoint enquiry")
-  );
+
+if (btnNewJob) {
+  btnNewJob.addEventListener("click", () => {
+    // In a real build you’d open a job form; for now push a note into Inbox.
+    renderMessage({
+      from: "me",
+      text: "New job created – please link incoming leads for this project.",
+      time: new Date().toLocaleTimeString("en-ZA", {
+        hour: "2-digit",
+        minute: "2-digit"
+      })
+    });
+    // switch to Inbox
+    document.querySelector('[data-tab="inbox"]').click();
+  });
 }
-const btnAddJobFromCalendar = document.getElementById("btnAddJobFromCalendar");
-if (btnAddJobFromCalendar) {
-  btnAddJobFromCalendar.addEventListener("click", () =>
-    openPopup("Calendar job – specify date/time")
-  );
+
+if (btnQuickLead) {
+  btnQuickLead.addEventListener("click", () => {
+    document.querySelector('[data-tab="leads"]').click();
+  });
 }
