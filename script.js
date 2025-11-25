@@ -1,352 +1,444 @@
-// Simple data model for this front-end dashboard only.
-// In future you can plug this into a backend / Supabase.
-
-const leads = [
-  {
-    id: 1,
-    received: "2025-02-05",
-    client: "Thandi M.",
-    service: "Geyser replacement – Pinetown",
-    channel: "ServicePoint",
-    status: "New",
-    value: 2800
-  },
-  {
-    id: 2,
-    received: "2025-02-04",
-    client: "Cal Media",
-    service: "Studio renovation – Woodstock",
-    channel: "WhatsApp",
-    status: "Quoted",
-    value: 18500
-  },
-  {
-    id: 3,
-    received: "2025-02-01",
-    client: "PT Nation Sandton",
-    service: "Gym lighting & plugs",
-    channel: "ServicePoint",
-    status: "Booked",
-    value: 12500
-  },
-  {
-    id: 4,
-    received: "2025-01-28",
-    client: "Mr Naidoo",
-    service: "Leak detection – Umhlanga",
-    channel: "Repeat client",
-    status: "Completed",
-    value: 3200
-  }
-];
-
-const jobs = [
-  {
-    date: "2025-02-06",
-    client: "Thandi M.",
-    service: "Geyser replacement",
-    location: "Pinetown",
-    status: "Site visit"
-  },
-  {
-    date: "2025-02-07",
-    client: "Cal Media",
-    service: "Studio renovation – day 1",
-    location: "Woodstock",
-    status: "In progress"
-  },
-  {
-    date: "2025-02-10",
-    client: "PT Nation Sandton",
-    service: "Gym lighting & plugs",
-    location: "Sandton",
-    status: "Booked"
-  }
-];
-
-const financeLog = [
-  "Invoice #INV-203 sent to PT Nation – R12 500",
-  "Invoice #INV-202 paid by Mr Naidoo – R3 200",
-  "Quote #Q-451 for Cal Media – R18 500 (awaiting approval)"
-];
-
-const messages = [
-  {
-    from: "ServicePoint Admin",
-    time: "Today · 09:14",
-    text: "Welcome to your new HQ dashboard. Leads from the main ServicePoint SA site will appear here once routed to you."
-  },
-  {
-    from: "Assistant – KZN",
-    time: "Yesterday · 16:02",
-    text: "Client Thandi M. is available Wednesday afternoon or Thursday morning for the geyser replacement. Please confirm which slot you prefer."
-  },
-  {
-    from: "ServicePoint Admin",
-    time: "Mon · 11:28",
-    text: "Remember to update us if any jobs are cancelled so we can keep your lead quality high."
-  }
-];
-
-document.addEventListener("DOMContentLoaded", () => {
-  wireNavigation();
-  wireThemeToggle();
-  renderDashboardStats();
-  renderJobs();
-  renderLeads();
-  renderFinance();
-  renderMessages();
-  wireLeadPopup();
-  wireInboxForm();
-});
-
-/* NAVIGATION */
-function wireNavigation() {
-  const buttons = document.querySelectorAll(".nav-item");
-  const views = document.querySelectorAll(".view");
-
-  buttons.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const target = btn.getAttribute("data-view");
-
-      buttons.forEach((b) => b.classList.remove("active"));
-      btn.classList.add("active");
-
-      views.forEach((view) => {
-        view.classList.toggle("active", view.id === `view-${target}`);
-      });
-    });
-  });
-}
-
-/* THEME TOGGLE */
-function wireThemeToggle() {
-  const toggle = document.getElementById("themeToggle");
-  toggle.addEventListener("click", () => {
+// THEME TOGGLE
+const themeToggle = document.getElementById("themeToggle");
+if (themeToggle) {
+  themeToggle.addEventListener("click", () => {
     document.body.classList.toggle("theme-light");
     document.body.classList.toggle("theme-dark");
   });
 }
 
-/* RENDER STATS + PIPELINE */
-function renderDashboardStats() {
-  const totalLeads = leads.length;
-  const jobsBooked = jobs.length;
-
-  const quoted = leads.filter((l) => l.status === "Quoted").length;
-  const booked = leads.filter((l) => l.status === "Booked").length;
-  const completed = leads.filter((l) => l.status === "Completed").length;
-  const newLeads = leads.filter((l) => l.status === "New").length;
-
-  const conversionBase = quoted + booked + completed;
-  const conversion =
-    conversionBase > 0
-      ? Math.round(((booked + completed) / conversionBase) * 100)
-      : 0;
-
-  document.getElementById("statNewLeads").textContent = totalLeads.toString();
-  document.getElementById("statJobsBooked").textContent =
-    jobsBooked.toString();
-  document.getElementById("statConversion").textContent = `${conversion}%`;
-
-  document.getElementById("pipeNew").textContent = newLeads.toString();
-  document.getElementById("pipeQuoted").textContent = quoted.toString();
-  document.getElementById("pipeBooked").textContent = booked.toString();
-  document.getElementById("pipeCompleted").textContent = completed.toString();
-}
-
-/* JOBS TABLE */
-function renderJobs() {
-  const tbody = document.getElementById("jobsTableBody");
-  tbody.innerHTML = "";
-
-  jobs
-    .slice()
-    .sort((a, b) => (a.date > b.date ? 1 : -1))
-    .forEach((job) => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${job.date}</td>
-        <td>${job.client}</td>
-        <td>${job.service}</td>
-        <td>${job.location}</td>
-        <td>${job.status}</td>
-      `;
-      tbody.appendChild(tr);
+// TAB SWITCHING
+document.querySelectorAll(".tab-btn").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const tab = btn.dataset.tab;
+    document
+      .querySelectorAll(".tab-btn")
+      .forEach((b) => b.classList.toggle("active", b === btn));
+    document.querySelectorAll(".tab-panel").forEach((p) => {
+      p.classList.toggle("active", p.id === `tab-${tab}`);
     });
-}
+  });
+});
 
-/* LEADS TABLE */
-function renderLeads() {
-  const tbody = document.getElementById("leadsTableBody");
-  tbody.innerHTML = "";
+// MOCK DATA – you can later plug in APIs here
+const pipelineData = [
+  { stage: "New", count: 2, items: ["WhatsApp – Geyser", "Website – Solar quote"] },
+  {
+    stage: "Quoted",
+    count: 3,
+    items: ["Leak detection", "Kitchen renovation", "Complex repaint"],
+  },
+  {
+    stage: "Booked",
+    count: 1,
+    items: ["Saturday – Fibre trenching"],
+  },
+  {
+    stage: "Completed",
+    count: 0,
+    items: ["No jobs closed yet this week"],
+  },
+];
 
-  leads
-    .slice()
-    .sort((a, b) => (a.received < b.received ? 1 : -1))
-    .forEach((lead) => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${lead.received}</td>
-        <td>${lead.client}</td>
-        <td>${lead.service}</td>
-        <td>${lead.channel}</td>
-        <td>${lead.status}</td>
-        <td>${lead.value ? `R${lead.value.toLocaleString("en-ZA")}` : "-"}</td>
-      `;
-      tr.addEventListener("click", () => {
-        alert(
-          `Lead details:\n\nClient: ${lead.client}\nService: ${lead.service}\nChannel: ${lead.channel}\nStatus: ${lead.status}\nEstimated value: ${
-            lead.value ? "R" + lead.value.toLocaleString("en-ZA") : "n/a"
-          }`
-        );
-      });
-      tbody.appendChild(tr);
-    });
-}
+const todayItems = [
+  {
+    time: "09:00",
+    title: "Site visit – Geyser replacement",
+    detail: "Umbilo · Meet client S. Khumalo",
+  },
+  {
+    time: "11:30",
+    title: "Quote follow-up",
+    detail: "Kitchen remodelling · WhatsApp R. Pillay",
+  },
+  {
+    time: "15:00",
+    title: "Team check-in",
+    detail: "Confirm materials for tomorrow’s jobs",
+  },
+];
 
-/* FINANCE */
-function renderFinance() {
-  const invoiced = leads
-    .filter((l) => l.status === "Completed")
-    .reduce((sum, l) => sum + (l.value || 0), 0);
+const leads = [
+  {
+    received: "Today",
+    client: "Thandi N.",
+    service: "Burst geyser – emergency",
+    region: "Durban North",
+    status: "Open",
+    value: "R4 800",
+  },
+  {
+    received: "Yesterday",
+    client: "Cape Property Care",
+    service: "Block of flats – solar assessment",
+    region: "Cape Town CBD",
+    status: "Follow-up",
+    value: "R95 000",
+  },
+];
 
-  const pipeline = leads
-    .filter((l) => l.status === "Quoted" || l.status === "Booked")
-    .reduce((sum, l) => sum + (l.value || 0), 0);
+const invoices = [
+  {
+    date: "2025-02-03",
+    num: "SP-INV-1023",
+    client: "M. Dlamini",
+    job: "Bathroom renovation – Phase 1",
+    amount: "R38 500",
+    status: "Paid",
+  },
+  {
+    date: "2025-02-05",
+    num: "SP-INV-1024",
+    client: "Urban Apartments (Body Corp)",
+    job: "Lift lobby repaint – Towers A/B",
+    amount: "R62 000",
+    status: "Sent",
+  },
+  {
+    date: "2025-02-07",
+    num: "SP-INV-1025",
+    client: "CAL MEDIA Studio",
+    job: "Electrical compliance – studio upgrade",
+    amount: "R12 750",
+    status: "Draft",
+  },
+];
 
-  document.getElementById("finInvoiced").textContent =
-    "R" + invoiced.toLocaleString("en-ZA");
-  document.getElementById("finPipeline").textContent =
-    "R" + pipeline.toLocaleString("en-ZA");
-  document.getElementById("finPaid").textContent = "R" + 0..toLocaleString();
+const inboxMessages = [
+  {
+    from: "SP Admin – Finance",
+    time: "Today · 09:24",
+    body:
+      "Reminder: Please upload proof of bank details for EFT payouts.\n" +
+      "Reply on email if you need help.",
+  },
+  {
+    from: "SP Admin – Leads",
+    time: "Yesterday · 15:02",
+    body:
+      "New region trial: We’re sending you more leads in Durban North for the next 2 weeks.\n" +
+      "Keep your response time under 15 minutes for best ranking.",
+  },
+  {
+    from: "SP Admin – Compliance",
+    time: "Mon · 11:45",
+    body:
+      "Your electrical COC document expires in 30 days.\n" +
+      "Please upload the renewed certificate when ready.",
+  },
+];
 
-  const logEl = document.getElementById("financeLog");
-  logEl.innerHTML = "";
-  financeLog.forEach((line) => {
-    const li = document.createElement("li");
-    li.textContent = line;
-    logEl.appendChild(li);
+// RENDER OPERATIONS / PIPELINE
+const pipelineColumnsEl = document.getElementById("pipelineColumns");
+if (pipelineColumnsEl) {
+  pipelineData.forEach((col) => {
+    const div = document.createElement("div");
+    div.className = "pipeline-column";
+    div.innerHTML = `
+      <h3>${col.stage}</h3>
+      <div class="pipeline-count">${col.count}</div>
+      <ul class="pipeline-items">
+        ${col.items.map((i) => `<li>${i}</li>`).join("")}
+      </ul>
+    `;
+    pipelineColumnsEl.appendChild(div);
   });
 }
 
-/* MESSAGES */
-function renderMessages() {
-  const list = document.getElementById("messageList");
-  list.innerHTML = "";
+// Today timeline
+const timelineEl = document.getElementById("todayTimeline");
+if (timelineEl) {
+  todayItems.forEach((item) => {
+    const li = document.createElement("li");
+    li.className = "timeline-item";
+    li.innerHTML = `
+      <div class="timeline-time">${item.time}</div>
+      <div class="timeline-body">
+        <strong>${item.title}</strong>
+        <span>${item.detail}</span>
+      </div>
+    `;
+    timelineEl.appendChild(li);
+  });
+}
 
-  messages.forEach((msg) => {
+// METRICS – simple calc from leads + invoices
+const metricNewLeadsEl = document.getElementById("metricNewLeads");
+const metricJobsBookedEl = document.getElementById("metricJobsBooked");
+const metricConversionEl = document.getElementById("metricConversion");
+if (metricNewLeadsEl) {
+  metricNewLeadsEl.textContent = leads.length.toString();
+}
+if (metricJobsBookedEl) {
+  metricJobsBookedEl.textContent = "0"; // placeholder – wire to real jobs later
+}
+if (metricConversionEl) {
+  metricConversionEl.textContent = "0%"; // placeholder
+}
+
+// LEADS TABLE
+const leadTableBody = document.getElementById("leadTableBody");
+const leadCountLabel = document.getElementById("leadCountLabel");
+
+function renderLeads() {
+  if (!leadTableBody) return;
+  leadTableBody.innerHTML = "";
+  leads.forEach((lead) => {
+    const tr = document.createElement("tr");
+    const statusClass =
+      lead.status === "Open"
+        ? "status-open"
+        : lead.status === "Follow-up"
+        ? "status-followup"
+        : "status-closed";
+    tr.innerHTML = `
+      <td>${lead.received}</td>
+      <td>${lead.client}</td>
+      <td>${lead.service}</td>
+      <td>${lead.region}</td>
+      <td><span class="status-pill ${statusClass}">${lead.status}</span></td>
+      <td>${lead.value}</td>
+    `;
+    leadTableBody.appendChild(tr);
+  });
+  if (leadCountLabel) {
+    leadCountLabel.textContent = `${leads.length} open`;
+  }
+}
+renderLeads();
+
+// Simulate adding a lead (until you have real API wired)
+const btnSimLead = document.getElementById("btnSimLead");
+if (btnSimLead) {
+  btnSimLead.addEventListener("click", () => {
+    leads.unshift({
+      received: "Just now",
+      client: "New SP website lead",
+      service: "General service request",
+      region: "KZN · Durban",
+      status: "Open",
+      value: "TBC",
+    });
+    renderLeads();
+    if (metricNewLeadsEl) {
+      metricNewLeadsEl.textContent = leads.length.toString();
+    }
+    alert("Example lead added – wire this to your real API later.");
+  });
+}
+
+// FINANCE
+const metricInvoiced = document.getElementById("metricInvoiced");
+const metricPaid = document.getElementById("metricPaid");
+const metricOutstanding = document.getElementById("metricOutstanding");
+const invoiceTableBody = document.getElementById("invoiceTableBody");
+
+function renderFinance() {
+  if (!invoiceTableBody) return;
+  let total = 0;
+  invoices.forEach((inv) => {
+    const amount = parseFloat(inv.amount.replace(/[R\s,]/g, "")) || 0;
+    total += amount;
+  });
+
+  const paidTotal = invoices
+    .filter((i) => i.status === "Paid")
+    .reduce(
+      (sum, i) => sum + (parseFloat(i.amount.replace(/[R\s,]/g, "")) || 0),
+      0
+    );
+  const outstandingTotal = total - paidTotal;
+
+  if (metricInvoiced) metricInvoiced.textContent = `R${total.toLocaleString()}`;
+  if (metricPaid) metricPaid.textContent = `R${paidTotal.toLocaleString()}`;
+  if (metricOutstanding)
+    metricOutstanding.textContent = `R${outstandingTotal.toLocaleString()}`;
+
+  invoiceTableBody.innerHTML = "";
+  invoices.forEach((inv) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${inv.date}</td>
+      <td>${inv.num}</td>
+      <td>${inv.client}</td>
+      <td>${inv.job}</td>
+      <td>${inv.amount}</td>
+      <td>${inv.status}</td>
+    `;
+    invoiceTableBody.appendChild(tr);
+  });
+}
+renderFinance();
+
+// INBOX
+const inboxList = document.getElementById("inboxList");
+if (inboxList) {
+  inboxMessages.forEach((msg) => {
     const div = document.createElement("div");
-    div.className = "message" + (msg.self ? " self" : "");
+    div.className = "inbox-msg";
     div.innerHTML = `
-      <div class="message-header">
+      <div class="inbox-meta">
         <span>${msg.from}</span>
         <span>${msg.time}</span>
       </div>
-      <div class="message-body">${msg.text}</div>
+      <div class="inbox-body">${msg.body}</div>
     `;
-    list.appendChild(div);
-  });
-
-  list.scrollTop = list.scrollHeight;
-}
-
-function wireInboxForm() {
-  const form = document.getElementById("messageForm");
-  const textarea = document.getElementById("messageText");
-
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const text = textarea.value.trim();
-    if (!text) return;
-
-    messages.push({
-      from: "You",
-      time: "Just now",
-      text,
-      self: true
-    });
-
-    textarea.value = "";
-    renderMessages();
+    inboxList.appendChild(div);
   });
 }
 
-/* LEAD POPUP / MANUAL CAPTURE */
-function wireLeadPopup() {
-  const popup = document.getElementById("leadPopup");
-  const btnNewLead = document.getElementById("btnNewLead");
-  const btnCancel = document.getElementById("popupCancel");
-  const btnSave = document.getElementById("popupSave");
+// JOBS CALENDAR – simple week generator
+const calendarGrid = document.getElementById("calendarGrid");
+const weekRangeLabel = document.getElementById("weekRangeLabel");
 
-  btnNewLead.addEventListener("click", () => {
-    popup.style.display = "flex";
+function buildWeekCalendar() {
+  if (!calendarGrid) return;
+  calendarGrid.innerHTML = "";
+  const now = new Date();
+  const day = now.getDay(); // 0-6
+  const mondayOffset = day === 0 ? -6 : 1 - day;
+  const monday = new Date(now);
+  monday.setDate(now.getDate() + mondayOffset);
+
+  const formatter = new Intl.DateTimeFormat("en-ZA", {
+    weekday: "short",
+    day: "numeric",
   });
 
-  btnCancel.addEventListener("click", () => {
-    popup.style.display = "none";
-    clearPopupFields();
-  });
+  const jobsMap = {
+    1: ["09:00 – Geyser replacement"],
+    3: ["11:00 – Solar site check", "15:30 – Body corp meeting"],
+    4: ["14:00 – CCTV quote"],
+  };
 
-  btnSave.addEventListener("click", () => {
-    const name = document.getElementById("popupClientName").value.trim();
-    const service = document.getElementById("popupService").value.trim();
-    const valueRaw = document.getElementById("popupValue").value.trim();
+  for (let i = 0; i < 7; i++) {
+    const date = new Date(monday);
+    date.setDate(monday.getDate() + i);
+    const label = formatter.format(date);
+    const div = document.createElement("div");
+    div.className = "calendar-day";
 
-    if (!name || !service) {
-      alert("Please add at least a client name and service.");
-      return;
+    const header = document.createElement("div");
+    header.className = "calendar-day-header";
+    header.innerHTML = `<span>${label}</span>`;
+
+    const jobsBox = document.createElement("div");
+    jobsBox.className = "calendar-day-jobs";
+
+    const dayJobs = jobsMap[i] || [];
+    if (dayJobs.length === 0) {
+      jobsBox.innerHTML = `<span style="color:var(--text-muted);font-size:10px;">No jobs yet</span>`;
+    } else {
+      dayJobs.forEach((j) => {
+        const chip = document.createElement("div");
+        chip.className = "calendar-job";
+        chip.textContent = j;
+        jobsBox.appendChild(chip);
+      });
     }
 
-    const value = valueRaw ? Number(valueRaw) : 0;
+    div.appendChild(header);
+    div.appendChild(jobsBox);
+    calendarGrid.appendChild(div);
+  }
 
-    leads.push({
-      id: Date.now(),
-      received: new Date().toISOString().slice(0, 10),
-      client: name,
-      service,
-      channel: "Manual capture",
-      status: "New",
-      value
+  if (weekRangeLabel) {
+    const end = new Date(monday);
+    end.setDate(monday.getDate() + 6);
+    const shortFmt = new Intl.DateTimeFormat("en-ZA", {
+      day: "numeric",
+      month: "short",
     });
-
-    popup.style.display = "none";
-    clearPopupFields();
-    renderDashboardStats();
-    renderLeads();
-    renderFinance();
-  });
-
-  function clearPopupFields() {
-    document.getElementById("popupClientName").value = "";
-    document.getElementById("popupService").value = "";
-    document.getElementById("popupValue").value = "";
+    weekRangeLabel.textContent = `${shortFmt.format(monday)} – ${shortFmt.format(
+      end
+    )}`;
   }
 }
+buildWeekCalendar();
 
-/*
-  NOTE FOR FUTURE:
-  If you want to push a lead into this dashboard from another page,
-  you can call window.addServicePointLead({client, service, value, channel, status})
-  as long as this script is loaded.
+/* POPUP + TELEGRAM LEAD
+   Same idea as main site: human assistant chat.
 */
-window.addServicePointLead = function ({
-  client,
-  service,
-  value = 0,
-  channel = "ServicePoint",
-  status = "New"
-}) {
-  leads.push({
-    id: Date.now(),
-    received: new Date().toISOString().slice(0, 10),
-    client,
-    service,
-    channel,
-    status,
-    value
-  });
-  renderDashboardStats();
-  renderLeads();
-  renderFinance();
-};
+const popupEl = document.getElementById("popup");
+const selectedServiceEl = document.getElementById("selectedService");
+
+function openPopup(serviceName) {
+  if (!popupEl || !selectedServiceEl) return;
+  selectedServiceEl.textContent = serviceName || "General service request";
+  popupEl.style.display = "flex";
+}
+
+function openPopupFromCTA() {
+  openPopup("General service request");
+}
+
+function closePopup() {
+  if (!popupEl) return;
+  popupEl.style.display = "none";
+}
+
+window.openPopupFromCTA = openPopupFromCTA;
+window.openPopup = openPopup;
+window.closePopup = closePopup;
+
+function sendLead() {
+  const nameInput = document.getElementById("clientName");
+  const phoneInput = document.getElementById("clientPhone");
+  if (!nameInput || !phoneInput || !selectedServiceEl) return;
+
+  const name = nameInput.value.trim();
+  const phone = phoneInput.value.trim();
+  const service = selectedServiceEl.textContent.trim();
+
+  if (!name || !phone) {
+    alert("Please fill in your name and contact number.");
+    return;
+  }
+
+  const botToken = "8526401033:AAFrG8IH8xqQL_RTD7s7JLyxZpc8e8GOyyg";
+  const chatId = "8187670531";
+
+  const msg = `🔥 *New Contractor HQ Lead*
+📌 Service: ${service}
+👤 Name: ${name}
+📱 Phone: ${phone}
+💼 Source: Contractor HQ dashboard`;
+
+  fetch(
+    `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}` +
+      `&text=${encodeURIComponent(msg)}&parse_mode=Markdown`
+  )
+    .then(() => {
+      alert(
+        "Thanks! Our human assistant has received your request and will follow up."
+      );
+      nameInput.value = "";
+      phoneInput.value = "";
+      closePopup();
+    })
+    .catch(() => {
+      alert("We could not send the request right now. Please try again.");
+    });
+}
+
+window.sendLead = sendLead;
+
+// Buttons that open popup from Operations
+const btnNewJob = document.getElementById("btnNewJob");
+if (btnNewJob) {
+  btnNewJob.addEventListener("click", () =>
+    openPopup("New job – specify details with assistant")
+  );
+}
+const btnQuickLead = document.getElementById("btnQuickLead");
+if (btnQuickLead) {
+  btnQuickLead.addEventListener("click", () =>
+    openPopup("Quick ServicePoint enquiry")
+  );
+}
+const btnAddJobFromCalendar = document.getElementById("btnAddJobFromCalendar");
+if (btnAddJobFromCalendar) {
+  btnAddJobFromCalendar.addEventListener("click", () =>
+    openPopup("Calendar job – specify date/time")
+  );
+}
