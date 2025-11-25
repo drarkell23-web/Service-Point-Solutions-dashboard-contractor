@@ -5,281 +5,269 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ServicePoint SA – Contractor HQ</title>
   <link rel="stylesheet" href="styles.css" />
+  <script src="script.js" defer></script>
 </head>
 <body class="theme-dark">
-  <!-- TOP BAR -->
-  <header class="topbar">
-    <div class="brand">
-      <div class="brand-logo">S</div>
-      <div class="brand-text">
-        <div class="brand-name">ServicePoint SA</div>
-        <div class="brand-sub">Contractor HQ dashboard</div>
-      </div>
-    </div>
-
-    <div class="topbar-center">
-      <div class="top-pill">Jobs, leads & compliance in one place.</div>
-      <div class="top-pill top-pill-accent">Live human assistant leads</div>
-    </div>
-
-    <div class="topbar-right">
-      <button id="themeToggle" class="ghost-btn">Toggle dark / light</button>
-    </div>
-  </header>
-
-  <main class="layout">
-    <!-- SIDEBAR NAV -->
-    <aside class="sidebar">
-      <nav class="nav">
-        <button class="nav-item active" data-view="operations">
-          <span class="nav-icon">📊</span>
-          <span>Operations</span>
-        </button>
-        <button class="nav-item" data-view="jobs">
-          <span class="nav-icon">🧰</span>
-          <span>Jobs calendar</span>
-        </button>
-        <button class="nav-item" data-view="leads">
-          <span class="nav-icon">🧾</span>
-          <span>Leads & clients</span>
-        </button>
-        <button class="nav-item" data-view="finance">
-          <span class="nav-icon">💸</span>
-          <span>Finance</span>
-        </button>
-        <button class="nav-item" data-view="inbox">
-          <span class="nav-icon">💬</span>
-          <span>Inbox (Admin ➜ You)</span>
-        </button>
-      </nav>
-
-      <div class="sidebar-foot">
-        <div class="foot-label">Account</div>
-        <div class="foot-line">Contractor: <strong>ServicePoint network</strong></div>
-        <div class="foot-line">Region: KZN · JHB · CPT</div>
-        <div class="foot-line">Support: <a href="mailto:servicepoint.info@gmail.com">servicepoint.info@gmail.com</a></div>
-      </div>
-    </aside>
-
-    <!-- MAIN VIEWS -->
-    <section class="main">
-
-      <!-- OPERATIONS VIEW -->
-      <section id="view-operations" class="view active">
-        <header class="view-header">
-          <h1>Operations overview</h1>
-          <p>
-            Live control hub for your ServicePoint jobs, leads and site teams.
-          </p>
-        </header>
-
-        <div class="grid-3">
-          <article class="stat-card">
-            <div class="stat-label">New ServicePoint leads (month)</div>
-            <div id="statNewLeads" class="stat-value">0</div>
-            <div class="stat-foot">From ServicePoint, WhatsApp & repeat clients.</div>
-          </article>
-
-          <article class="stat-card">
-            <div class="stat-label">Jobs booked this month</div>
-            <div id="statJobsBooked" class="stat-value">0</div>
-            <div class="stat-foot">Confirmed jobs with dates in your calendar.</div>
-          </article>
-
-          <article class="stat-card">
-            <div class="stat-label">Quote conversion rate</div>
-            <div id="statConversion" class="stat-value">0%</div>
-            <div class="stat-foot">Jobs won vs quotes sent via ServicePoint.</div>
-          </article>
+  <div class="page-shell">
+    <!-- TOP BAR -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <div class="brand-mark">S</div>
+        <div class="brand-copy">
+          <div class="brand-title">ServicePoint SA</div>
+          <div class="brand-subtitle">Contractor HQ dashboard</div>
         </div>
+      </div>
 
-        <section class="panel mt-lg">
-          <header class="panel-header">
-            <h2>Pipeline snapshot</h2>
-            <p>Quick view of where your current leads are sitting.</p>
-          </header>
+      <div class="topbar-center">
+        <span class="pill pill-soft">Jobs, leads &amp; compliance in one place</span>
+        <span class="pill pill-accent">Live human assistant leads</span>
+        <span class="pill pill-soft">Region: KZN · JHB · CPT</span>
+      </div>
 
-          <div class="pipeline-grid">
-            <div class="pipeline-column">
-              <div class="pipeline-label">New</div>
-              <div id="pipeNew" class="pipeline-count">0</div>
-            </div>
-            <div class="pipeline-column">
-              <div class="pipeline-label">Quoted</div>
-              <div id="pipeQuoted" class="pipeline-count">0</div>
-            </div>
-            <div class="pipeline-column">
-              <div class="pipeline-label">Booked</div>
-              <div id="pipeBooked" class="pipeline-count">0</div>
-            </div>
-            <div class="pipeline-column">
-              <div class="pipeline-label">Completed</div>
-              <div id="pipeCompleted" class="pipeline-count">0</div>
-            </div>
-          </div>
-        </section>
-      </section>
+      <div class="topbar-right">
+        <button id="themeToggle" class="btn-ghost-small" type="button">
+          Toggle dark / light
+        </button>
+      </div>
+    </header>
 
-      <!-- JOBS VIEW -->
-      <section id="view-jobs" class="view">
-        <header class="view-header">
-          <h1>Jobs calendar</h1>
-          <p>See upcoming site work pulled from your ServicePoint leads.</p>
-        </header>
-
-        <section class="panel">
-          <header class="panel-header panel-header-inline">
-            <div>
-              <h2>Upcoming jobs</h2>
-              <p>Jobs with booked dates in the next 30 days.</p>
-            </div>
-          </header>
-
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Client</th>
-                <th>Service</th>
-                <th>Location</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody id="jobsTableBody">
-              <!-- Filled by JS -->
-            </tbody>
-          </table>
-        </section>
-      </section>
-
-      <!-- LEADS VIEW -->
-      <section id="view-leads" class="view">
-        <header class="view-header">
-          <h1>Leads & clients</h1>
-          <p>Leads routed from the ServicePoint SA platform and your assistant.</p>
-        </header>
-
-        <section class="panel">
-          <header class="panel-header panel-header-inline">
-            <div>
-              <h2>Live leads</h2>
-              <p>Tap on a lead row to see the key details.</p>
-            </div>
-            <button class="primary-btn" id="btnNewLead">+ Quick ServicePoint enquiry</button>
-          </header>
-
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Received</th>
-                <th>Client</th>
-                <th>Service</th>
-                <th>Channel</th>
-                <th>Status</th>
-                <th>Value (est.)</th>
-              </tr>
-            </thead>
-            <tbody id="leadsTableBody">
-              <!-- Filled by JS -->
-            </tbody>
-          </table>
-        </section>
-      </section>
-
-      <!-- FINANCE VIEW -->
-      <section id="view-finance" class="view">
-        <header class="view-header">
-          <h1>Finance overview</h1>
-          <p>Month-to-date numbers from your ServicePoint jobs.</p>
-        </header>
-
-        <div class="grid-3">
-          <article class="stat-card">
-            <div class="stat-label">Invoiced this month</div>
-            <div id="finInvoiced" class="stat-value">R0</div>
-            <div class="stat-foot">Based on jobs marked as completed.</div>
-          </article>
-          <article class="stat-card">
-            <div class="stat-label">Expected (pipeline)</div>
-            <div id="finPipeline" class="stat-value">R0</div>
-            <div class="stat-foot">Estimated value of quoted + booked work.</div>
-          </article>
-          <article class="stat-card">
-            <div class="stat-label">Paid so far</div>
-            <div id="finPaid" class="stat-value">R0</div>
-            <div class="stat-foot">Manually mark paid jobs in your own system.</div>
-          </article>
+    <!-- ACCOUNT STRIP -->
+    <section class="account-strip">
+      <div>
+        <div class="account-label">Account</div>
+        <div class="account-value">Contractor: <strong>ServicePoint network</strong></div>
+        <div class="account-tags">
+          <span class="tag">HQ view</span>
+          <span class="tag tag-green">Live</span>
         </div>
-
-        <section class="panel mt-lg">
-          <header class="panel-header">
-            <h2>Simple month log</h2>
-            <p>Use this as a quick reference while you run your own accounts.</p>
-          </header>
-          <ul class="finance-log" id="financeLog">
-            <!-- Filled by JS -->
-          </ul>
-        </section>
-      </section>
-
-      <!-- INBOX VIEW -->
-      <section id="view-inbox" class="view">
-        <header class="view-header">
-          <h1>Inbox – messages from ServicePoint</h1>
-          <p>
-            This is where admin notes and assistant updates appear for your jobs.
-          </p>
-        </header>
-
-        <section class="panel inbox-panel">
-          <div class="inbox-messages" id="messageList">
-            <!-- Filled by JS -->
-          </div>
-
-          <form id="messageForm" class="inbox-composer">
-            <label for="messageText">Reply to admin / leave internal note</label>
-            <textarea id="messageText" rows="3" placeholder="Type your reply or note here..."></textarea>
-            <div class="inbox-actions">
-              <button type="submit" class="primary-btn">Send to admin</button>
-              <span class="inbox-hint">
-                Messages here are visible to ServicePoint support and your admin.
-              </span>
-            </div>
-          </form>
-        </section>
-      </section>
+      </div>
+      <div class="account-meta">
+        <span>Support: <a href="mailto:servicepoint.info@gmail.com">servicepoint.info@gmail.com</a></span>
+        <span>SP ref: <strong>SP-CT-HQ</strong></span>
+      </div>
     </section>
-  </main>
 
-  <footer class="site-footer">
-    <span>© 2025 ServicePoint SA · Contractor HQ</span>
-    <span>Want to join the network? Email <a href="mailto:servicepoint.info@gmail.com">servicepoint.info@gmail.com</a></span>
-  </footer>
+    <!-- TAB BAR -->
+    <nav class="tab-bar">
+      <button class="tab-btn active" data-tab="operations">
+        <span class="tab-icon">📊</span> Operations
+      </button>
+      <button class="tab-btn" data-tab="jobs">
+        <span class="tab-icon">🗓️</span> Jobs calendar
+      </button>
+      <button class="tab-btn" data-tab="leads">
+        <span class="tab-icon">👥</span> Leads &amp; clients
+      </button>
+      <button class="tab-btn" data-tab="finance">
+        <span class="tab-icon">💰</span> Finance
+      </button>
+      <button class="tab-btn" data-tab="inbox">
+        <span class="tab-icon">💬</span> Inbox (Admin → You)
+      </button>
+    </nav>
 
-  <!-- SIMPLE LEAD POPUP -->
-  <div id="leadPopup" class="popup-bg">
-    <div class="popup-box">
-      <h3 class="popup-title">Quick ServicePoint enquiry</h3>
-      <p class="popup-sub">
-        Capture a new lead that came in on phone, WhatsApp or walk-in. It will appear in your Leads table.
-      </p>
+    <!-- MAIN CONTENT -->
+    <main class="content-shell">
+      <!-- OPERATIONS TAB -->
+      <section class="tab-panel active" id="tab-operations">
+        <header class="panel-header">
+          <div>
+            <h1>Operations overview</h1>
+            <p>
+              Live control hub for your ServicePoint jobs, leads and site teams.
+            </p>
+          </div>
+          <div class="panel-actions">
+            <button class="btn-primary" id="btnNewJob">+ New job</button>
+            <button class="btn-outline" id="btnQuickLead">+ Quick ServicePoint enquiry</button>
+          </div>
+        </header>
 
-      <label class="popup-label" for="popupClientName">Client name</label>
-      <input id="popupClientName" class="popup-input" type="text" placeholder="e.g. Thandi M." />
+        <section class="grid-3">
+          <article class="card card-metric">
+            <div class="metric-label">New ServicePoint leads (month)</div>
+            <div class="metric-value" id="metricNewLeads">0</div>
+            <div class="metric-sub">From website, WhatsApp &amp; repeat clients.</div>
+          </article>
 
-      <label class="popup-label" for="popupService">Service requested</label>
-      <input id="popupService" class="popup-input" type="text" placeholder="e.g. Geyser replacement in Pinetown" />
+          <article class="card card-metric">
+            <div class="metric-label">Jobs booked this month</div>
+            <div class="metric-value" id="metricJobsBooked">0</div>
+            <div class="metric-sub">
+              Confirmed visits with dates in your calendar.
+            </div>
+          </article>
 
-      <label class="popup-label" for="popupValue">Estimated value (optional)</label>
-      <input id="popupValue" class="popup-input" type="number" min="0" placeholder="e.g. 2500" />
+          <article class="card card-metric">
+            <div class="metric-label">Quote conversion rate</div>
+            <div class="metric-value" id="metricConversion">0%</div>
+            <div class="metric-sub">Jobs won vs quotes sent via ServicePoint.</div>
+          </article>
+        </section>
 
-      <div class="popup-row">
-        <button class="btn-secondary" type="button" id="popupCancel">Cancel</button>
-        <button class="btn-primary" type="button" id="popupSave">Save lead</button>
-      </div>
-    </div>
+        <section class="grid-2 mt-lg">
+          <article class="card">
+            <header class="card-header">
+              <h2>Pipeline snapshot</h2>
+              <span class="card-tag">Live</span>
+            </header>
+            <div class="pipeline-grid" id="pipelineColumns">
+              <!-- Columns rendered by JS -->
+            </div>
+          </article>
+
+          <article class="card">
+            <header class="card-header">
+              <h2>Today at a glance</h2>
+            </header>
+            <ul class="timeline" id="todayTimeline">
+              <!-- Today items from JS -->
+            </ul>
+          </article>
+        </section>
+      </section>
+
+      <!-- JOBS TAB -->
+      <section class="tab-panel" id="tab-jobs">
+        <header class="panel-header">
+          <div>
+            <h1>Jobs calendar</h1>
+            <p>See confirmed visits and upcoming work in a simple weekly view.</p>
+          </div>
+          <div class="panel-actions">
+            <button class="btn-outline" id="btnAddJobFromCalendar">+ Add job</button>
+          </div>
+        </header>
+
+        <section class="card">
+          <header class="card-header">
+            <h2>This week</h2>
+            <span class="card-tag" id="weekRangeLabel"></span>
+          </header>
+          <div class="calendar-grid" id="calendarGrid">
+            <!-- Filled by JS -->
+          </div>
+        </section>
+      </section>
+
+      <!-- LEADS TAB -->
+      <section class="tab-panel" id="tab-leads">
+        <header class="panel-header">
+          <div>
+            <h1>Leads &amp; clients</h1>
+            <p>Leads routed from ServicePoint SA. Mark status as you work them.</p>
+          </div>
+          <div class="panel-actions">
+            <button class="btn-primary" id="btnSimLead">+ Simulate new lead</button>
+          </div>
+        </header>
+
+        <section class="card">
+          <header class="card-header">
+            <h2>Active leads</h2>
+            <span class="card-tag" id="leadCountLabel">0 open</span>
+          </header>
+
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Received</th>
+                  <th>Client</th>
+                  <th>Service</th>
+                  <th>Region</th>
+                  <th>Status</th>
+                  <th>Value (est.)</th>
+                </tr>
+              </thead>
+              <tbody id="leadTableBody">
+                <!-- JS rows -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+
+      <!-- FINANCE TAB -->
+      <section class="tab-panel" id="tab-finance">
+        <header class="panel-header">
+          <div>
+            <h1>Finance snapshot</h1>
+            <p>Track invoices, payments and outstanding amounts for ServicePoint jobs.</p>
+          </div>
+        </header>
+
+        <section class="grid-3">
+          <article class="card card-metric">
+            <div class="metric-label">Invoiced (month)</div>
+            <div class="metric-value" id="metricInvoiced">R0</div>
+            <div class="metric-foot">Sent to clients via ServicePoint.</div>
+          </article>
+          <article class="card card-metric">
+            <div class="metric-label">Paid (month)</div>
+            <div class="metric-value" id="metricPaid">R0</div>
+            <div class="metric-foot">Confirmed payments received.</div>
+          </article>
+          <article class="card card-metric">
+            <div class="metric-label">Outstanding</div>
+            <div class="metric-value" id="metricOutstanding">R0</div>
+            <div class="metric-foot">Follow up on these accounts.</div>
+          </article>
+        </section>
+
+        <section class="card mt-lg">
+          <header class="card-header">
+            <h2>Recent invoices</h2>
+          </header>
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Invoice #</th>
+                  <th>Client</th>
+                  <th>Job</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="invoiceTableBody">
+                <!-- JS rows -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+
+      <!-- INBOX TAB -->
+      <section class="tab-panel" id="tab-inbox">
+        <header class="panel-header">
+          <div>
+            <h1>Inbox – Admin → You</h1>
+            <p>Messages from ServicePoint HQ about jobs, leads and compliance.</p>
+          </div>
+        </header>
+
+        <section class="card inbox-card">
+          <div class="inbox-list" id="inboxList">
+            <!-- Messages from JS -->
+          </div>
+
+          <aside class="inbox-side">
+            <h2>Notes</h2>
+            <p class="inbox-note">
+              Reply to these messages via WhatsApp or email as usual – this panel
+              is for quick reference inside your dashboard.
+            </p>
+            <p class="inbox-note">
+              To become a listed ServicePoint contractor in more regions, email:
+              <br /><strong>servicepoint.info@gmail.com</strong>
+            </p>
+          </aside>
+        </section>
+      </section>
+    </main>
   </div>
-
-  <script src="script.js" defer></script>
 </body>
 </html>
