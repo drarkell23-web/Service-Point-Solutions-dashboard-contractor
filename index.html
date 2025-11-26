@@ -2,216 +2,229 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ServicePoint SA – Contractor HQ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body class="theme-dark">
   <!-- TOP BAR -->
-  <header class="topbar">
-    <div class="brand">
-      <div class="brand-logo">S</div>
-      <div class="brand-text">
-        <div class="brand-name">ServicePoint SA</div>
-        <div class="brand-sub">Contractor HQ dashboard</div>
+  <header class="sp-topbar">
+    <div class="sp-brand">
+      <div class="sp-brand-logo">S</div>
+      <div class="sp-brand-text">
+        <div class="sp-brand-name">ServicePoint SA</div>
+        <div class="sp-brand-sub">Contractor HQ · Live SaaS dashboard</div>
       </div>
     </div>
 
-    <div class="topbar-center">
-      <div class="top-pill">Jobs, leads & finance in one ServicePoint hub.</div>
-      <div class="top-pill top-pill-accent">Live human assistant leads</div>
+    <div class="sp-topbar-center">
+      <div class="sp-top-pill">
+        All your ServicePoint leads, jobs & billing in one live hub.
+      </div>
+      <div class="sp-top-filters">
+        <label class="sp-filter">
+          Range
+          <select id="filterRange">
+            <option value="30">Last 30 days</option>
+            <option value="7">Last 7 days</option>
+            <option value="90">Last 90 days</option>
+            <option value="all">All time</option>
+          </select>
+        </label>
+        <label class="sp-filter">
+          Region
+          <select id="filterRegion">
+            <option value="all">All regions</option>
+            <option value="KZN">KZN</option>
+            <option value="Gauteng">Gauteng</option>
+            <option value="Western Cape">Western Cape</option>
+            <option value="Other">Other / Unassigned</option>
+          </select>
+        </label>
+      </div>
     </div>
 
-    <div class="topbar-right">
-      <button id="themeToggle" class="ghost-btn">Toggle dark / light</button>
+    <div class="sp-topbar-right">
+      <button id="btnNewLeadHeader" class="primary-btn">+ New lead</button>
+      <button id="themeToggle" class="ghost-btn">Toggle theme</button>
     </div>
   </header>
 
-  <main class="layout">
-    <!-- SIDEBAR NAV -->
-    <aside class="sidebar">
-      <nav class="nav">
-        <button class="nav-item active" data-view="operations">
-          <span class="nav-icon">📊</span>
-          <span>Operations</span>
+  <main class="sp-layout">
+    <!-- SIDEBAR -->
+    <aside class="sp-sidebar">
+      <nav class="sp-nav">
+        <button class="sp-nav-item active" data-view-target="overview">
+          <span class="sp-nav-icon">📊</span>
+          <span>Overview</span>
         </button>
-        <button class="nav-item" data-view="jobs">
-          <span class="nav-icon">🧰</span>
-          <span>Jobs calendar</span>
+        <button class="sp-nav-item" data-view-target="leads">
+          <span class="sp-nav-icon">🧾</span>
+          <span>Leads</span>
         </button>
-        <button class="nav-item" data-view="leads">
-          <span class="nav-icon">🧾</span>
-          <span>Leads & clients</span>
+        <button class="sp-nav-item" data-view-target="jobs">
+          <span class="sp-nav-icon">🧰</span>
+          <span>Jobs</span>
         </button>
-        <button class="nav-item" data-view="finance">
-          <span class="nav-icon">💸</span>
-          <span>Finance</span>
+        <button class="sp-nav-item" data-view-target="billing">
+          <span class="sp-nav-icon">💸</span>
+          <span>Billing</span>
         </button>
-        <button class="nav-item" data-view="inbox">
-          <span class="nav-icon">💬</span>
-          <span>Inbox (Admin ➜ You)</span>
+        <button class="sp-nav-item" data-view-target="settings">
+          <span class="sp-nav-icon">⚙️</span>
+          <span>Settings</span>
         </button>
       </nav>
 
-      <div class="sidebar-foot">
-        <div class="foot-label">Account</div>
-        <div class="foot-line">Contractor: <strong>ServicePoint Network</strong></div>
-        <div class="foot-line">Regions: KZN · JHB · CPT</div>
-        <div class="foot-line">
+      <div class="sp-sidebar-foot">
+        <div class="sp-foot-label">Account</div>
+        <div class="sp-foot-line">Contractor: <strong>ServicePoint Network</strong></div>
+        <div class="sp-foot-line">Live source: Admin → this dashboard</div>
+        <div class="sp-foot-line">
           Support:
-          <a href="mailto:servicepoint.info@gmail.com">
-            servicepoint.info@gmail.com
-          </a>
+          <a href="mailto:servicepoint.info@gmail.com">servicepoint.info@gmail.com</a>
         </div>
       </div>
     </aside>
 
-    <!-- MAIN VIEWS -->
-    <section class="main">
-
-      <!-- OPERATIONS VIEW -->
-      <section id="view-operations" class="view active">
-        <header class="view-header">
-          <h1>Operations overview</h1>
-          <p>
-            Live control hub for your ServicePoint jobs, leads and site teams.
-          </p>
+    <!-- MAIN -->
+    <section class="sp-main">
+      <!-- OVERVIEW VIEW -->
+      <section class="sp-view sp-view--active" data-view="overview">
+        <header class="sp-view-header">
+          <h1>Live operations overview</h1>
+          <p>Real-time snapshot of your ServicePoint leads, jobs and billing.</p>
         </header>
 
-        <!-- TOP STATS -->
-        <div class="grid-3">
-          <article class="stat-card">
-            <div class="stat-label">New ServicePoint leads (month)</div>
-            <div id="statNewLeads" class="stat-value">0</div>
-            <div class="stat-foot">
-              From ServicePoint SA, WhatsApp & repeat clients.
-            </div>
+        <!-- KPIs -->
+        <section class="sp-grid-4 sp-kpis">
+          <article class="sp-card sp-card-kpi">
+            <div class="sp-kpi-label">New leads (selected range)</div>
+            <div id="kpiLeads" class="sp-kpi-value">0</div>
+            <div class="sp-kpi-foot">From ServicePoint + assistant in filter window.</div>
           </article>
 
-          <article class="stat-card">
-            <div class="stat-label">Jobs booked this month</div>
-            <div id="statJobsBooked" class="stat-value">0</div>
-            <div class="stat-foot">
-              Confirmed jobs with dates in your schedule.
-            </div>
+          <article class="sp-card sp-card-kpi">
+            <div class="sp-kpi-label">Active jobs</div>
+            <div id="kpiActiveJobs" class="sp-kpi-value">0</div>
+            <div class="sp-kpi-foot">Jobs not yet completed or cancelled.</div>
           </article>
 
-          <article class="stat-card">
-            <div class="stat-label">Quote conversion rate</div>
-            <div id="statConversion" class="stat-value">0%</div>
-            <div class="stat-foot">
-              Jobs won vs quotes sent via ServicePoint.
-            </div>
+          <article class="sp-card sp-card-kpi">
+            <div class="sp-kpi-label">Pipeline value</div>
+            <div id="kpiPipeline" class="sp-kpi-value">R0</div>
+            <div class="sp-kpi-foot">Quoted + booked + in progress work.</div>
           </article>
-        </div>
 
-        <!-- PIPELINE + SNAPSHOT -->
-        <section class="panel mt-lg">
-          <header class="panel-header panel-header-inline">
-            <div>
-              <h2>Pipeline snapshot</h2>
-              <p>Quick view of where your current leads are sitting.</p>
-            </div>
-            <div class="pipeline-legend">
-              <span class="dot new"></span>New
-              <span class="dot quoted"></span>Quoted
-              <span class="dot booked"></span>Booked
-              <span class="dot completed"></span>Completed
-            </div>
-          </header>
+          <article class="sp-card sp-card-kpi">
+            <div class="sp-kpi-label">Paid this month</div>
+            <div id="kpiPaid" class="sp-kpi-value">R0</div>
+            <div class="sp-kpi-foot">Based on invoices you mark as paid.</div>
+          </article>
+        </section>
 
-          <div class="pipeline-grid">
-            <div class="pipeline-column">
-              <div class="pipeline-label">New</div>
-              <div id="pipeNew" class="pipeline-count">0</div>
-            </div>
-            <div class="pipeline-column">
-              <div class="pipeline-label">Quoted</div>
-              <div id="pipeQuoted" class="pipeline-count">0</div>
-            </div>
-            <div class="pipeline-column">
-              <div class="pipeline-label">Booked</div>
-              <div id="pipeBooked" class="pipeline-count">0</div>
-            </div>
-            <div class="pipeline-column">
-              <div class="pipeline-label">Completed</div>
-              <div id="pipeCompleted" class="pipeline-count">0</div>
-            </div>
+        <!-- CHARTS + ACTIVITY -->
+        <section class="sp-grid-main-side sp-mt-lg">
+          <div class="sp-grid-main">
+            <article class="sp-card">
+              <header class="sp-panel-header">
+                <div>
+                  <h2>Leads timeline</h2>
+                  <p>How many leads you received per day (in the selected range).</p>
+                </div>
+              </header>
+              <div class="sp-chart-wrap">
+                <canvas id="chartLeadsTimeline"></canvas>
+                <div id="chartLeadsTimelineEmpty" class="sp-chart-empty">
+                  Waiting for your first lead…
+                </div>
+              </div>
+            </article>
+
+            <section class="sp-grid-2 sp-mt-lg">
+              <article class="sp-card">
+                <header class="sp-panel-header">
+                  <div>
+                    <h2>Lead sources</h2>
+                    <p>Where your work is coming from.</p>
+                  </div>
+                </header>
+                <div class="sp-chart-wrap-small">
+                  <canvas id="chartChannelBreakdown"></canvas>
+                  <div id="chartChannelEmpty" class="sp-chart-empty small">
+                    No leads yet to show channels.
+                  </div>
+                </div>
+              </article>
+
+              <article class="sp-card">
+                <header class="sp-panel-header">
+                  <div>
+                    <h2>Pipeline status</h2>
+                    <p>Mix of New, Quoted, Booked, Completed, etc.</p>
+                  </div>
+                </header>
+                <div class="sp-chart-wrap-small">
+                  <canvas id="chartStatusBreakdown"></canvas>
+                  <div id="chartStatusEmpty" class="sp-chart-empty small">
+                    No leads yet to show statuses.
+                  </div>
+                </div>
+              </article>
+            </section>
           </div>
+
+          <aside class="sp-grid-side">
+            <article class="sp-card sp-card-activity">
+              <header class="sp-panel-header">
+                <div>
+                  <h2>Live activity</h2>
+                  <p>Everything that happens in your account.</p>
+                </div>
+              </header>
+              <ul id="activityFeed" class="sp-activity-list">
+                <!-- Filled by JS -->
+              </ul>
+              <div class="sp-activity-empty" id="activityEmpty">
+                No activity yet. When admin sends your first lead, it will appear here.
+              </div>
+            </article>
+
+            <article class="sp-card sp-card-mini sp-mt-sm">
+              <header class="sp-panel-header">
+                <div>
+                  <h2>Today’s quick snapshot</h2>
+                  <p>Only counts items for today.</p>
+                </div>
+              </header>
+              <dl class="sp-mini-metrics">
+                <div>
+                  <dt>Leads today</dt>
+                  <dd id="miniLeadsToday">0</dd>
+                </div>
+                <div>
+                  <dt>Jobs on site today</dt>
+                  <dd id="miniJobsToday">0</dd>
+                </div>
+                <div>
+                  <dt>Value of work on site</dt>
+                  <dd id="miniValueToday">R0</dd>
+                </div>
+              </dl>
+            </article>
+          </aside>
         </section>
 
-        <!-- MINI ANALYTICS -->
-        <section class="panel mt-lg">
-          <header class="panel-header panel-header-inline">
+        <!-- RECENT LEADS TABLE PREVIEW -->
+        <section class="sp-card sp-mt-lg">
+          <header class="sp-panel-header sp-panel-header-inline">
             <div>
-              <h2>This week at a glance</h2>
-              <p>Assistant + ServicePoint jobs and leads in one snapshot.</p>
+              <h2>Recent leads (live)</h2>
+              <p>Last 10 leads across all channels.</p>
             </div>
+            <button class="ghost-btn" data-open-view="leads">Open full leads table →</button>
           </header>
-          <div class="mini-analytics">
-            <div class="mini-analytics-block">
-              <div class="mini-label">Lead sources</div>
-              <ul id="leadSourceBreakdown" class="mini-list"></ul>
-            </div>
-            <div class="mini-analytics-block">
-              <div class="mini-label">Status mix</div>
-              <ul id="statusBreakdown" class="mini-list"></ul>
-            </div>
-          </div>
-        </section>
-      </section>
-
-      <!-- JOBS VIEW -->
-      <section id="view-jobs" class="view">
-        <header class="view-header">
-          <h1>Jobs calendar</h1>
-          <p>Upcoming site work pulled from your ServicePoint leads.</p>
-        </header>
-
-        <section class="panel">
-          <header class="panel-header panel-header-inline">
-            <div>
-              <h2>Upcoming jobs</h2>
-              <p>Jobs with booked dates in the next 30 days.</p>
-            </div>
-          </header>
-
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Client</th>
-                <th>Service</th>
-                <th>Location</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody id="jobsTableBody">
-              <!-- Filled by JS -->
-            </tbody>
-          </table>
-        </section>
-      </section>
-
-      <!-- LEADS VIEW -->
-      <section id="view-leads" class="view">
-        <header class="view-header">
-          <h1>Leads & clients</h1>
-          <p>Leads routed from the ServicePoint SA platform and your assistant.</p>
-        </header>
-
-        <section class="panel">
-          <header class="panel-header panel-header-inline">
-            <div>
-              <h2>Live leads</h2>
-              <p>Tap on a lead row to see the key details.</p>
-            </div>
-            <button class="primary-btn" id="btnNewLead">
-              + Quick ServicePoint enquiry
-            </button>
-          </header>
-
-          <table class="table">
+          <table class="sp-table">
             <thead>
               <tr>
                 <th>Received</th>
@@ -219,136 +232,487 @@
                 <th>Service</th>
                 <th>Channel</th>
                 <th>Status</th>
-                <th>Value (est.)</th>
+                <th>Value</th>
+              </tr>
+            </thead>
+            <tbody id="overviewLeadsBody">
+              <!-- Filled by JS -->
+            </tbody>
+          </table>
+          <div id="overviewLeadsEmpty" class="sp-table-empty">
+            No leads yet. They will appear here as soon as admin sends them to you.
+          </div>
+        </section>
+      </section>
+
+      <!-- LEADS VIEW -->
+      <section class="sp-view" data-view="leads">
+        <header class="sp-view-header sp-view-header-inline">
+          <div>
+            <h1>Leads & clients</h1>
+            <p>Every lead that comes from ServicePoint, WhatsApp, phone, or your assistant.</p>
+          </div>
+          <button id="btnNewLeadLeadsView" class="primary-btn">+ New lead</button>
+        </header>
+
+        <section class="sp-card sp-mt-sm">
+          <div class="sp-leads-toolbar">
+            <div class="sp-leads-filters">
+              <input
+                type="text"
+                id="leadsSearch"
+                class="sp-input"
+                placeholder="Search by client, service or channel…"
+              />
+              <select id="leadsStatusFilter" class="sp-input">
+                <option value="all">All statuses</option>
+                <option value="New">New</option>
+                <option value="Contacted">Contacted</option>
+                <option value="Quoted">Quoted</option>
+                <option value="Booked">Booked</option>
+                <option value="In progress">In progress</option>
+                <option value="Completed">Completed</option>
+                <option value="Lost">Lost</option>
+              </select>
+              <select id="leadsChannelFilter" class="sp-input">
+                <option value="all">All channels</option>
+                <option value="ServicePoint SA">ServicePoint SA</option>
+                <option value="WhatsApp">WhatsApp</option>
+                <option value="Phone">Phone</option>
+                <option value="Email">Email</option>
+                <option value="Walk-in">Walk-in</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <span class="sp-leads-count">
+              <span id="leadsCount">0</span> lead(s)
+            </span>
+          </div>
+
+          <table class="sp-table sp-table-leads">
+            <thead>
+              <tr>
+                <th>Received</th>
+                <th>Client</th>
+                <th>Service</th>
+                <th>Channel</th>
+                <th>Region</th>
+                <th>Status</th>
+                <th>Value</th>
               </tr>
             </thead>
             <tbody id="leadsTableBody">
               <!-- Filled by JS -->
             </tbody>
           </table>
+          <div id="leadsEmptyState" class="sp-table-empty">
+            No leads yet. Once you or admin add a lead, it will show here.
+          </div>
         </section>
       </section>
 
-      <!-- FINANCE VIEW -->
-      <section id="view-finance" class="view">
-        <header class="view-header">
-          <h1>Finance overview</h1>
-          <p>Month-to-date numbers from your ServicePoint jobs.</p>
+      <!-- JOBS VIEW -->
+      <section class="sp-view" data-view="jobs">
+        <header class="sp-view-header sp-view-header-inline">
+          <div>
+            <h1>Jobs & schedule</h1>
+            <p>Site work created from your leads and clients.</p>
+          </div>
+          <button id="btnNewJob" class="primary-btn">+ New job</button>
         </header>
 
-        <div class="grid-3">
-          <article class="stat-card">
-            <div class="stat-label">Invoiced this month</div>
-            <div id="finInvoiced" class="stat-value">R0</div>
-            <div class="stat-foot">Based on jobs marked as completed.</div>
-          </article>
-          <article class="stat-card">
-            <div class="stat-label">Expected (pipeline)</div>
-            <div id="finPipeline" class="stat-value">R0</div>
-            <div class="stat-foot">Estimated value of quoted + booked work.</div>
-          </article>
-          <article class="stat-card">
-            <div class="stat-label">Paid so far</div>
-            <div id="finPaid" class="stat-value">R0</div>
-            <div class="stat-foot">Update in your own accounting system.</div>
-          </article>
-        </div>
-
-        <section class="panel mt-lg">
-          <header class="panel-header">
-            <h2>Simple month log</h2>
-            <p>Quick reference while you run your own accounts.</p>
+        <section class="sp-card sp-mt-sm">
+          <header class="sp-panel-header">
+            <div>
+              <h2>Upcoming & active jobs</h2>
+              <p>Jobs in the next 60 days and in progress.</p>
+            </div>
           </header>
-          <ul class="finance-log" id="financeLog">
-            <!-- Filled by JS -->
-          </ul>
+
+          <table class="sp-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Job</th>
+                <th>Client</th>
+                <th>Location</th>
+                <th>Status</th>
+                <th>Value</th>
+              </tr>
+            </thead>
+            <tbody id="jobsTableBody">
+              <!-- Filled by JS -->
+            </tbody>
+          </table>
+          <div id="jobsEmptyState" class="sp-table-empty">
+            No jobs yet. Convert a lead into a job or create one manually.
+          </div>
         </section>
       </section>
 
-      <!-- INBOX VIEW -->
-      <section id="view-inbox" class="view">
-        <header class="view-header">
-          <h1>Inbox – messages from ServicePoint</h1>
-          <p>Admin notes and human assistant updates for your jobs.</p>
+      <!-- BILLING VIEW -->
+      <section class="sp-view" data-view="billing">
+        <header class="sp-view-header sp-view-header-inline">
+          <div>
+            <h1>Billing & invoices</h1>
+            <p>Simple overview for your own accounting system.</p>
+          </div>
+          <button id="btnNewInvoice" class="primary-btn">+ Add invoice</button>
         </header>
 
-        <section class="panel inbox-panel">
-          <div class="inbox-messages" id="messageList">
-            <!-- Filled by JS -->
+        <section class="sp-grid-3 sp-mt-sm">
+          <article class="sp-card sp-card-kpi">
+            <div class="sp-kpi-label">Invoiced (selected range)</div>
+            <div id="billInvoiced" class="sp-kpi-value">R0</div>
+            <div class="sp-kpi-foot">All invoices in the date filter.</div>
+          </article>
+          <article class="sp-card sp-card-kpi">
+            <div class="sp-kpi-label">Paid</div>
+            <div id="billPaid" class="sp-kpi-value">R0</div>
+            <div class="sp-kpi-foot">Invoices marked as paid.</div>
+          </article>
+          <article class="sp-card sp-card-kpi">
+            <div class="sp-kpi-label">Outstanding</div>
+            <div id="billOutstanding" class="sp-kpi-value">R0</div>
+            <div class="sp-kpi-foot">Invoiced – paid.</div>
+          </article>
+        </section>
+
+        <section class="sp-card sp-mt-lg">
+          <header class="sp-panel-header">
+            <div>
+              <h2>Invoices log</h2>
+              <p>Use this as a quick reference next to your accounting system.</p>
+            </div>
+          </header>
+
+          <table class="sp-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Invoice #</th>
+                <th>Client</th>
+                <th>Amount</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="invoicesTableBody">
+              <!-- Filled by JS -->
+            </tbody>
+          </table>
+          <div id="invoicesEmptyState" class="sp-table-empty">
+            No invoices yet. Add them as you bill clients.
+          </div>
+        </section>
+      </section>
+
+      <!-- SETTINGS VIEW -->
+      <section class="sp-view" data-view="settings">
+        <header class="sp-view-header">
+          <h1>Settings</h1>
+          <p>These are front-end only toggles – backend logic can come later.</p>
+        </header>
+
+        <section class="sp-card sp-mt-sm sp-settings-grid">
+          <div class="sp-settings-block">
+            <h2>Notification preferences</h2>
+            <label class="sp-toggle">
+              <input type="checkbox" checked />
+              <span></span>
+              Email me when a new lead arrives
+            </label>
+            <label class="sp-toggle">
+              <input type="checkbox" checked />
+              <span></span>
+              Email me when a job is booked
+            </label>
+            <label class="sp-toggle">
+              <input type="checkbox" />
+              <span></span>
+              Email me when an invoice is overdue
+            </label>
           </div>
 
-          <form id="messageForm" class="inbox-composer">
-            <label for="messageText">Reply to admin / leave internal note</label>
-            <textarea
-              id="messageText"
-              rows="3"
-              placeholder="Type your reply or note here..."
-            ></textarea>
-            <div class="inbox-actions">
-              <button type="submit" class="primary-btn">Send to admin</button>
-              <span class="inbox-hint">
-                Messages here are visible to ServicePoint support and admin.
-              </span>
-            </div>
-          </form>
+          <div class="sp-settings-block">
+            <h2>Connected channels</h2>
+            <ul class="sp-settings-list">
+              <li>
+                <span>ServicePoint SA</span>
+                <span class="sp-tag sp-tag-live">Connected</span>
+              </li>
+              <li>
+                <span>WhatsApp assistant</span>
+                <span class="sp-tag sp-tag-live">Connected</span>
+              </li>
+              <li>
+                <span>Manual capture</span>
+                <span class="sp-tag">Always available</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="sp-settings-block">
+            <h2>API hooks (frontend only)</h2>
+            <p class="sp-settings-note">
+              Admin or another site can push into this dashboard using:
+            </p>
+            <pre class="sp-code">
+window.addServicePointLead({...})
+window.addServicePointJob({...})
+window.addServicePointInvoice({...})</pre>
+            <p class="sp-settings-note small">
+              Later you can connect this to Supabase or another backend – the
+              structure is already ready.
+            </p>
+          </div>
         </section>
       </section>
     </section>
   </main>
 
-  <footer class="site-footer">
+  <footer class="sp-footer">
     <span>© 2025 ServicePoint SA · Contractor HQ</span>
-    <span>
-      Want to join the network?
-      Email <a href="mailto:servicepoint.info@gmail.com">servicepoint.info@gmail.com</a>
-    </span>
+    <span>Live data only – everything here updates as leads come in from admin.</span>
   </footer>
 
-  <!-- SIMPLE LEAD POPUP -->
-  <div id="leadPopup" class="popup-bg">
-    <div class="popup-box">
-      <h3 class="popup-title">Quick ServicePoint enquiry</h3>
-      <p class="popup-sub">
-        Capture a new lead that came in on phone, WhatsApp or walk-in. It will
-        appear in your Leads table.
+  <!-- MODALS -->
+
+  <!-- NEW LEAD MODAL -->
+  <div id="leadModal" class="sp-modal-bg">
+    <div class="sp-modal">
+      <header class="sp-modal-header">
+        <h2>New lead</h2>
+        <button class="sp-modal-close" data-modal-close="leadModal">✕</button>
+      </header>
+      <p class="sp-modal-sub">
+        Quick capture for a new lead from ServicePoint, WhatsApp, phone or walk-in.
       </p>
 
-      <label class="popup-label" for="popupClientName">Client name</label>
-      <input
-        id="popupClientName"
-        class="popup-input"
-        type="text"
-        placeholder="e.g. Thandi M."
-      />
+      <form id="leadForm" class="sp-form">
+        <label class="sp-field">
+          <span>Client name</span>
+          <input id="leadClient" type="text" class="sp-input" required />
+        </label>
 
-      <label class="popup-label" for="popupService">Service requested</label>
-      <input
-        id="popupService"
-        class="popup-input"
-        type="text"
-        placeholder="e.g. Geyser replacement in Pinetown"
-      />
+        <label class="sp-field">
+          <span>Service requested</span>
+          <input
+            id="leadService"
+            type="text"
+            class="sp-input"
+            placeholder="e.g. Geyser replacement – Pinetown"
+            required
+          />
+        </label>
 
-      <label class="popup-label" for="popupValue">Estimated value (optional)</label>
-      <input
-        id="popupValue"
-        class="popup-input"
-        type="number"
-        min="0"
-        placeholder="e.g. 2500"
-      />
+        <div class="sp-form-grid-3">
+          <label class="sp-field">
+            <span>Channel</span>
+            <select id="leadChannel" class="sp-input">
+              <option value="ServicePoint SA">ServicePoint SA</option>
+              <option value="WhatsApp">WhatsApp</option>
+              <option value="Phone">Phone</option>
+              <option value="Email">Email</option>
+              <option value="Walk-in">Walk-in</option>
+              <option value="Other">Other</option>
+            </select>
+          </label>
 
-      <div class="popup-row">
-        <button class="btn-secondary" type="button" id="popupCancel">
-          Cancel
-        </button>
-        <button class="btn-primary" type="button" id="popupSave">
-          Save lead
-        </button>
-      </div>
+          <label class="sp-field">
+            <span>Region</span>
+            <select id="leadRegion" class="sp-input">
+              <option value="KZN">KZN</option>
+              <option value="Gauteng">Gauteng</option>
+              <option value="Western Cape">Western Cape</option>
+              <option value="Other">Other / Unassigned</option>
+            </select>
+          </label>
+
+          <label class="sp-field">
+            <span>Status</span>
+            <select id="leadStatus" class="sp-input">
+              <option value="New">New</option>
+              <option value="Contacted">Contacted</option>
+              <option value="Quoted">Quoted</option>
+              <option value="Booked">Booked</option>
+              <option value="In progress">In progress</option>
+              <option value="Completed">Completed</option>
+              <option value="Lost">Lost</option>
+            </select>
+          </label>
+        </div>
+
+        <label class="sp-field">
+          <span>Estimated value (R)</span>
+          <input
+            id="leadValue"
+            type="number"
+            min="0"
+            step="1"
+            class="sp-input"
+            placeholder="e.g. 2500"
+          />
+        </label>
+
+        <div class="sp-modal-actions">
+          <button
+            type="button"
+            class="ghost-btn"
+            data-modal-close="leadModal"
+          >
+            Cancel
+          </button>
+          <button type="submit" class="primary-btn">Save lead</button>
+        </div>
+      </form>
     </div>
   </div>
 
+  <!-- NEW JOB MODAL -->
+  <div id="jobModal" class="sp-modal-bg">
+    <div class="sp-modal">
+      <header class="sp-modal-header">
+        <h2>New job</h2>
+        <button class="sp-modal-close" data-modal-close="jobModal">✕</button>
+      </header>
+      <p class="sp-modal-sub">
+        Create a job from a confirmed client or lead. You can link it to a lead later.
+      </p>
+
+      <form id="jobForm" class="sp-form">
+        <div class="sp-form-grid-2">
+          <label class="sp-field">
+            <span>Date</span>
+            <input id="jobDate" type="date" class="sp-input" required />
+          </label>
+          <label class="sp-field">
+            <span>Client name</span>
+            <input id="jobClient" type="text" class="sp-input" required />
+          </label>
+        </div>
+
+        <label class="sp-field">
+          <span>Job description</span>
+          <input
+            id="jobTitle"
+            type="text"
+            class="sp-input"
+            placeholder="e.g. Geyser replacement – Pinetown"
+            required
+          />
+        </label>
+
+        <div class="sp-form-grid-3">
+          <label class="sp-field">
+            <span>Location</span>
+            <input
+              id="jobLocation"
+              type="text"
+              class="sp-input"
+              placeholder="e.g. Pinetown"
+            />
+          </label>
+          <label class="sp-field">
+            <span>Status</span>
+            <select id="jobStatus" class="sp-input">
+              <option value="Booked">Booked</option>
+              <option value="On site">On site</option>
+              <option value="In progress">In progress</option>
+              <option value="Completed">Completed</option>
+              <option value="Cancelled">Cancelled</option>
+            </select>
+          </label>
+          <label class="sp-field">
+            <span>Job value (R)</span>
+            <input
+              id="jobValue"
+              type="number"
+              min="0"
+              step="1"
+              class="sp-input"
+            />
+          </label>
+        </div>
+
+        <div class="sp-modal-actions">
+          <button
+            type="button"
+            class="ghost-btn"
+            data-modal-close="jobModal"
+          >
+            Cancel
+          </button>
+          <button type="submit" class="primary-btn">Save job</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- NEW INVOICE MODAL -->
+  <div id="invoiceModal" class="sp-modal-bg">
+    <div class="sp-modal">
+      <header class="sp-modal-header">
+        <h2>New invoice</h2>
+        <button class="sp-modal-close" data-modal-close="invoiceModal">✕</button>
+      </header>
+      <p class="sp-modal-sub">
+        Track invoices here while you use your own accounting system.
+      </p>
+
+      <form id="invoiceForm" class="sp-form">
+        <div class="sp-form-grid-3">
+          <label class="sp-field">
+            <span>Date</span>
+            <input id="invoiceDate" type="date" class="sp-input" required />
+          </label>
+          <label class="sp-field">
+            <span>Invoice #</span>
+            <input id="invoiceNumber" type="text" class="sp-input" required />
+          </label>
+          <label class="sp-field">
+            <span>Client</span>
+            <input id="invoiceClient" type="text" class="sp-input" required />
+          </label>
+        </div>
+
+        <div class="sp-form-grid-2">
+          <label class="sp-field">
+            <span>Amount (R)</span>
+            <input
+              id="invoiceAmount"
+              type="number"
+              min="0"
+              step="1"
+              class="sp-input"
+              required
+            />
+          </label>
+          <label class="sp-field">
+            <span>Status</span>
+            <select id="invoiceStatus" class="sp-input">
+              <option value="Sent">Sent</option>
+              <option value="Paid">Paid</option>
+              <option value="Overdue">Overdue</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="sp-modal-actions">
+          <button
+            type="button"
+            class="ghost-btn"
+            data-modal-close="invoiceModal"
+          >
+            Cancel
+          </button>
+          <button type="submit" class="primary-btn">Save invoice</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- LIBS + APP -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="script.js" defer></script>
 </body>
 </html>
