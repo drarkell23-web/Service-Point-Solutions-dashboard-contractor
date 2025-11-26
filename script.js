@@ -1,14 +1,14 @@
-// Simple front-end “live” model.
-// Starts empty. Data only appears when:
-//  - you add via forms in this dashboard, OR
-//  - admin / another page calls the window.addServicePoint* helpers.
+// FRONT-END ONLY DATA MODEL
+// Starts empty. It only fills from:
+// 1) Forms in this dashboard
+// 2) window.addServicePointLead / Job / Invoice (admin / other site)
 
 let leads = [];
 let jobs = [];
 let invoices = [];
 let activity = [];
 
-// Filters for KPIs & charts
+// Global filters (for KPIs & charts)
 const filters = {
   range: "30", // days or "all"
   region: "all", // region or "all"
@@ -22,12 +22,12 @@ const charts = {
 
 document.addEventListener("DOMContentLoaded", () => {
   wireThemeToggle();
-  wireNavigation();
   wireFilterControls();
   wireOverviewButtons();
   wireLeadModal();
   wireJobModal();
   wireInvoiceModal();
+  wireLeadsFilters();
   initCharts();
   renderAll();
 });
@@ -42,40 +42,7 @@ function wireThemeToggle() {
   });
 }
 
-/* NAVIGATION */
-function wireNavigation() {
-  const navButtons = document.querySelectorAll(".sp-nav-item");
-  const views = document.querySelectorAll(".sp-view");
-
-  function setView(target) {
-    views.forEach((view) => {
-      view.classList.toggle("sp-view--active", view.dataset.view === target);
-    });
-    navButtons.forEach((btn) => {
-      btn.classList.toggle(
-        "active",
-        btn.getAttribute("data-view-target") === target
-      );
-    });
-  }
-
-  navButtons.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const target = btn.getAttribute("data-view-target");
-      setView(target);
-    });
-  });
-
-  // Small helpers inside overview cards
-  document.querySelectorAll("[data-open-view]").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const target = btn.getAttribute("data-open-view");
-      setView(target);
-    });
-  });
-}
-
-/* FILTERS */
+/* FILTERS (top bar) */
 function wireFilterControls() {
   const rangeSelect = document.getElementById("filterRange");
   const regionSelect = document.getElementById("filterRegion");
@@ -95,17 +62,15 @@ function wireFilterControls() {
   }
 }
 
-/* HEAD / VIEW BUTTONS */
+/* HEADER / SECTION ACTION BUTTONS */
 function wireOverviewButtons() {
   const btnHeaderLead = document.getElementById("btnNewLeadHeader");
   const btnLeadsViewLead = document.getElementById("btnNewLeadLeadsView");
-
-  btnHeaderLead?.addEventListener("click", () => openModal("leadModal"));
-  btnLeadsViewLead?.addEventListener("click", () => openModal("leadModal"));
-
   const btnNewJob = document.getElementById("btnNewJob");
   const btnNewInvoice = document.getElementById("btnNewInvoice");
 
+  btnHeaderLead?.addEventListener("click", () => openModal("leadModal"));
+  btnLeadsViewLead?.addEventListener("click", () => openModal("leadModal"));
   btnNewJob?.addEventListener("click", () => openModal("jobModal"));
   btnNewInvoice?.addEventListener("click", () => openModal("invoiceModal"));
 }
@@ -262,7 +227,7 @@ function wireInvoiceModal() {
       client,
       amount,
       status,
-      createdAt: date, // use invoice date for filter
+      createdAt: date,
     };
 
     invoices.push(invoice);
@@ -306,7 +271,7 @@ function todayStr() {
   return new Date().toISOString().slice(0, 10);
 }
 
-// Apply filter window (range + region)
+// Filter for charts / KPIs (range + region)
 function filterLeadsForView() {
   return leads.filter((lead) => {
     if (!matchesRegion(lead.region)) return false;
@@ -371,17 +336,14 @@ function logActivity(type, payload) {
     dateLabel,
   });
 
-  // Limit feed length
   if (activity.length > 50) {
     activity.length = 50;
   }
 }
 
-/* RENDERING */
-
+/* RENDER MASTER */
 function renderAll() {
   renderKpis();
-  renderOverviewLeadsPreview();
   renderActivityFeed();
   renderMiniToday();
   renderLeadsTable();
@@ -417,37 +379,6 @@ function renderKpis() {
   kpiActiveJobsEl.textContent = activeJobs.length.toString();
   kpiPipelineEl.textContent = "R" + pipelineValue.toLocaleString("en-ZA");
   kpiPaidEl.textContent = "R" + paidInRange.toLocaleString("en-ZA");
-}
-
-/* OVERVIEW – LEADS PREVIEW */
-function renderOverviewLeadsPreview() {
-  const tbody = document.getElementById("overviewLeadsBody");
-  const emptyEl = document.getElementById("overviewLeadsEmpty");
-  tbody.innerHTML = "";
-
-  const sorted = [...leads].sort((a, b) =>
-    a.createdAt < b.createdAt ? 1 : -1
-  );
-  const preview = sorted.slice(0, 10);
-
-  if (preview.length === 0) {
-    emptyEl.style.display = "block";
-    return;
-  }
-  emptyEl.style.display = "none";
-
-  preview.forEach((lead) => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${lead.createdAt}</td>
-      <td>${escapeHtml(lead.client)}</td>
-      <td>${escapeHtml(lead.service)}</td>
-      <td>${escapeHtml(lead.channel)}</td>
-      <td>${escapeHtml(lead.status)}</td>
-      <td>${formatCurrency(lead.value)}</td>
-    `;
-    tbody.appendChild(tr);
-  });
 }
 
 /* ACTIVITY FEED */
@@ -494,7 +425,7 @@ function renderMiniToday() {
     "R" + valueToday.toLocaleString("en-ZA");
 }
 
-/* LEADS TABLE VIEW */
+/* LEADS FILTERS + TABLE */
 function wireLeadsFilters() {
   const searchInput = document.getElementById("leadsSearch");
   const statusSelect = document.getElementById("leadsStatusFilter");
@@ -504,9 +435,6 @@ function wireLeadsFilters() {
   statusSelect?.addEventListener("change", renderLeadsTable);
   channelSelect?.addEventListener("change", renderLeadsTable);
 }
-
-// Ensure filters are wired once
-wireLeadsFilters();
 
 function renderLeadsTable() {
   const tbody = document.getElementById("leadsTableBody");
@@ -568,7 +496,7 @@ function renderLeadsTable() {
       tbody.appendChild(tr);
     });
 
-  // Wire status dropdowns
+  // wire status dropdowns
   tbody.querySelectorAll(".sp-input-status").forEach((sel) => {
     sel.addEventListener("change", (e) => {
       const id = Number(e.target.getAttribute("data-lead-id"));
@@ -693,7 +621,7 @@ function updateBillingKpis() {
     "R" + outstanding.toLocaleString("en-ZA");
 }
 
-/* CHARTS – INIT + UPDATE */
+/* CHARTS */
 function initCharts() {
   const timelineCtx = document
     .getElementById("chartLeadsTimeline")
@@ -808,7 +736,6 @@ function updateLeadsTimelineChart() {
   const emptyEl = document.getElementById("chartLeadsTimelineEmpty");
   if (!chart) return;
 
-  // Build last N days (based on range) or 30 days default
   const daysRange = filters.range === "all" ? 30 : Number(filters.range) || 30;
   const labels = [];
   const counts = [];
@@ -887,8 +814,7 @@ function updateStatusChart() {
   chart.update();
 }
 
-/* GLOBAL HELPERS */
-
+/* HELPERS */
 function formatCurrency(value) {
   if (!value || isNaN(value)) return "-";
   return "R" + Number(value).toLocaleString("en-ZA");
@@ -902,9 +828,9 @@ function escapeHtml(str) {
     .replace(/>/g, "&gt;");
 }
 
-/* PUBLIC API FOR ADMIN / OTHER PAGES
-   These can be called from another page as long as this dashboard
-   is loaded in the same window (or you expose it via window.postMessage later).
+/* PUBLIC API – FOR ADMIN / OTHER SITES
+   These can be called from ANYWHERE as long as this page is open
+   and the script is loaded.
 */
 
 window.addServicePointLead = function ({
