@@ -1,5 +1,5 @@
 // Simple data model for this front-end dashboard only.
-// In future you can plug this into a backend / Supabase.
+// Later you can plug this into a backend / Supabase.
 
 const leads = [
   {
@@ -96,6 +96,8 @@ document.addEventListener("DOMContentLoaded", () => {
   renderLeads();
   renderFinance();
   renderMessages();
+  renderOpsLeads();
+  renderKpiFocus();
   wireLeadPopup();
   wireInboxForm();
 });
@@ -128,7 +130,7 @@ function wireThemeToggle() {
   });
 }
 
-/* RENDER STATS + PIPELINE */
+/* RENDER STATS + PIPELINE + KPIs */
 function renderDashboardStats() {
   const totalLeads = leads.length;
   const jobsBooked = jobs.length;
@@ -153,11 +155,36 @@ function renderDashboardStats() {
   document.getElementById("pipeQuoted").textContent = quoted.toString();
   document.getElementById("pipeBooked").textContent = booked.toString();
   document.getElementById("pipeCompleted").textContent = completed.toString();
+
+  // KPI: average lead value
+  const leadsWithValue = leads.filter((l) => typeof l.value === "number");
+  const totalValue = leadsWithValue.reduce(
+    (sum, l) => sum + (l.value || 0),
+    0
+  );
+  const avgValue =
+    leadsWithValue.length > 0 ? totalValue / leadsWithValue.length : 0;
+
+  const avgValueEl = document.getElementById("kpiAvgValue");
+  if (avgValueEl) {
+    avgValueEl.textContent =
+      "R" + Math.round(avgValue).toLocaleString("en-ZA");
+  }
+
+  // KPI: share of leads from ServicePoint channel
+  const spLeads = leads.filter((l) => l.channel === "ServicePoint").length;
+  const share =
+    totalLeads > 0 ? Math.round((spLeads / totalLeads) * 100) : 0;
+  const shareEl = document.getElementById("kpiSPShare");
+  if (shareEl) {
+    shareEl.textContent = `${share}%`;
+  }
 }
 
 /* JOBS TABLE */
 function renderJobs() {
   const tbody = document.getElementById("jobsTableBody");
+  if (!tbody) return;
   tbody.innerHTML = "";
 
   jobs
@@ -176,9 +203,10 @@ function renderJobs() {
     });
 }
 
-/* LEADS TABLE */
+/* LEADS TABLE (FULL) */
 function renderLeads() {
   const tbody = document.getElementById("leadsTableBody");
+  if (!tbody) return;
   tbody.innerHTML = "";
 
   leads
@@ -196,11 +224,35 @@ function renderLeads() {
       `;
       tr.addEventListener("click", () => {
         alert(
-          `Lead details:\n\nClient: ${lead.client}\nService: ${lead.service}\nChannel: ${lead.channel}\nStatus: ${lead.status}\nEstimated value: ${
+          `Lead details:\n\nClient: ${lead.client}\nService: ${lead.service}\nChannel: ${
+            lead.channel
+          }\nStatus: ${lead.status}\nEstimated value: ${
             lead.value ? "R" + lead.value.toLocaleString("en-ZA") : "n/a"
           }`
         );
       });
+      tbody.appendChild(tr);
+    });
+}
+
+/* LEADS TABLE (OPS MINI) */
+function renderOpsLeads() {
+  const tbody = document.getElementById("opsLeadsTableBody");
+  if (!tbody) return;
+  tbody.innerHTML = "";
+
+  leads
+    .slice()
+    .sort((a, b) => (a.received < b.received ? 1 : -1))
+    .slice(0, 5)
+    .forEach((lead) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${lead.received}</td>
+        <td>${lead.client}</td>
+        <td>${lead.service}</td>
+        <td>${lead.status}</td>
+      `;
       tbody.appendChild(tr);
     });
 }
@@ -215,13 +267,24 @@ function renderFinance() {
     .filter((l) => l.status === "Quoted" || l.status === "Booked")
     .reduce((sum, l) => sum + (l.value || 0), 0);
 
-  document.getElementById("finInvoiced").textContent =
-    "R" + invoiced.toLocaleString("en-ZA");
-  document.getElementById("finPipeline").textContent =
-    "R" + pipeline.toLocaleString("en-ZA");
-  document.getElementById("finPaid").textContent = "R" + 0..toLocaleString();
+  const invoicedEl = document.getElementById("finInvoiced");
+  const pipelineEl = document.getElementById("finPipeline");
+  const paidEl = document.getElementById("finPaid");
+
+  if (invoicedEl) {
+    invoicedEl.textContent =
+      "R" + invoiced.toLocaleString("en-ZA");
+  }
+  if (pipelineEl) {
+    pipelineEl.textContent =
+      "R" + pipeline.toLocaleString("en-ZA");
+  }
+  if (paidEl) {
+    paidEl.textContent = "R" + (0).toLocaleString("en-ZA");
+  }
 
   const logEl = document.getElementById("financeLog");
+  if (!logEl) return;
   logEl.innerHTML = "";
   financeLog.forEach((line) => {
     const li = document.createElement("li");
@@ -233,6 +296,7 @@ function renderFinance() {
 /* MESSAGES */
 function renderMessages() {
   const list = document.getElementById("messageList");
+  if (!list) return;
   list.innerHTML = "";
 
   messages.forEach((msg) => {
@@ -254,6 +318,7 @@ function renderMessages() {
 function wireInboxForm() {
   const form = document.getElementById("messageForm");
   const textarea = document.getElementById("messageText");
+  if (!form || !textarea) return;
 
   form.addEventListener("submit", (e) => {
     e.preventDefault();
@@ -278,6 +343,8 @@ function wireLeadPopup() {
   const btnNewLead = document.getElementById("btnNewLead");
   const btnCancel = document.getElementById("popupCancel");
   const btnSave = document.getElementById("popupSave");
+
+  if (!popup || !btnNewLead || !btnCancel || !btnSave) return;
 
   btnNewLead.addEventListener("click", () => {
     popup.style.display = "flex";
@@ -314,13 +381,46 @@ function wireLeadPopup() {
     clearPopupFields();
     renderDashboardStats();
     renderLeads();
+    renderOpsLeads();
     renderFinance();
+    renderKpiFocus();
   });
 
   function clearPopupFields() {
     document.getElementById("popupClientName").value = "";
     document.getElementById("popupService").value = "";
     document.getElementById("popupValue").value = "";
+  }
+}
+
+/* FOCUS KPI TAGS (services that appear most) */
+function renderKpiFocus() {
+  const container = document.getElementById("kpiFocusChips");
+  if (!container) return;
+
+  const counts = {};
+  leads.forEach((l) => {
+    const base = l.service.split("–")[0].trim(); // group by main service label
+    counts[base] = (counts[base] || 0) + 1;
+  });
+
+  const sorted = Object.entries(counts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 4);
+
+  container.innerHTML = "";
+  sorted.forEach(([label, count]) => {
+    const chip = document.createElement("div");
+    chip.className = "kpi-chip";
+    chip.textContent = `${label} · ${count}`;
+    container.appendChild(chip);
+  });
+
+  if (sorted.length === 0) {
+    const chip = document.createElement("div");
+    chip.className = "kpi-chip";
+    chip.textContent = "No data yet – leads will show here.";
+    container.appendChild(chip);
   }
 }
 
@@ -348,5 +448,7 @@ window.addServicePointLead = function ({
   });
   renderDashboardStats();
   renderLeads();
+  renderOpsLeads();
   renderFinance();
+  renderKpiFocus();
 };
